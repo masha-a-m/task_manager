@@ -4,7 +4,15 @@ from django.utils.crypto import get_random_string
 
 
 class CustomUser(AbstractUser):
-    pass
+    username = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    has_completed_onboarding = models.BooleanField(default=False)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
+
+
+
 
 class Task(models.Model):
     user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)

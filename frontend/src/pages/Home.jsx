@@ -1,6 +1,11 @@
-import React, {useRef, useEffect} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
+import { useNavigate } from 'react-router-dom';
+
+document.title = "📝 Clarity | A To-Do List to help Organize your life";
 
 export default function Home() {
+
+  const [isOpen, setIsOpen] = useState(false);
 
   const sections = [
     {
@@ -64,6 +69,17 @@ export default function Home() {
     }
   ];
 
+  function BoldFirstPart({ text }) {
+    const [first, second, ...rest] = text.split(' ');
+    return (
+      <>
+        <span className="font-bold">{first}</span>
+        <span className="font-bold">{second}</span><br></br>
+        <span>{' ' + rest.join(' ')}</span>
+      </>
+    );
+  }
+
   const marqueeRef = useRef(null);
 
   // Simulate continuous horizontal scrolling
@@ -87,6 +103,28 @@ export default function Home() {
     return () => cancelAnimationFrame(id);
   }, []);
 
+
+  const [showLoader, setShowLoader] = useState(false);
+  const navigate = useNavigate();
+
+  const handleRegisterClick = (e) => {
+    e.preventDefault();
+    setShowLoader(true);
+
+    // Simulate API call or loading time
+    setTimeout(() => {
+      navigate('/register');
+    }, 2000); // Wait 2 seconds
+  };
+
+
+    // Define your images + labels
+  // const images = [
+  //   { src: '/images/img1.avif', label: '160+ countries<br></br>worldwide' },
+  //   { src: '/images/img2.avif', label: '1+ million pro users' },
+  //   { src: '/images/img3.avif', label: '30+ million app downloads' },
+  //   { src: '/images/img4.avif', label: '2+ billion tasks completed' },
+  // ];
 
 
   
@@ -148,7 +186,7 @@ export default function Home() {
           <span className="text-gray-400">|</span>
           {/* Login Link */}
           <a href="/login" className="hover:bg-gray-100 font-medium px-3 py-2 rounded">Login</a>
-          <a href="/signup" className="hover:bg-red-700 bg-red-500 px-4 py-2 font-medium font-bold text-white rounded-sm">Get Started</a>
+          <a href="/register" onClick={handleRegisterClick} className="hover:bg-red-700 bg-red-500 px-4 py-2 font-medium font-bold text-white rounded-sm">Get Started</a>
         </div>
       </nav>
 
@@ -346,21 +384,21 @@ export default function Home() {
      
 
       {/* Long-Term Mission Section */}
-    <section className="py-20 px-6 bg-white">
+    <section className="py-10 px-6 bg-white">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-10">
 
         {/* Left Side Text */}
-        <div className="lg:w-1/2 space-y-4">
-          <span className="text-red-500 text-sm font-medium">IN IT FOR THE LONG HAUL</span>
-          <h2 className="text-3xl md:text-4xl font-extrabold leading-tight">
-            A task manager you can trust for life
+        <div className="lg:w-1/2 space-y-6 ml-14">
+          <span className="text-red-700 text-lg font-medium">In it for the long haul</span>
+          <h2 className="text-3xl md:text-4xl mt-6 font-bold leading-tight">
+            A task manager you can<br></br> trust for life
           </h2>
-          <p className="text-gray-600 mt-4 max-w-lg">
-            We’ve been building Todoist for 18 years and 152 days. Rest assured that we’ll never sell out to the highest bidder.
+          <p className="text-gray-600 mt-4 max-w-lg text-xl">
+            We’ve been building Todoist for 18 years and 152 <br></br>days. Rest assured that we’ll never sell out to the<br></br> highest bidder.
           </p>
 
           {/* Link with Icon */}
-          <a href="/mission" className="inline-flex items-center text-blue-600 hover:text-blue-800 mt-4">
+          <a href="/mission" className="inline-flex items-center text-blue-600  hover:bg-blue-50 px-3 py-2 rounded mt-4 text-lg">
             <span>📖</span>
             <span className="ml-2 font-medium">Read about our long-term mission</span>
           </a>
@@ -371,33 +409,61 @@ export default function Home() {
           <div
             ref={marqueeRef}
             className="flex animate-marquee"
-            style={{ width: '200%' }}
+            style={{ width: '150%' }}
           >
             {/* Duplicate images to create seamless loop */}
-            {['img1.jpg', 'img2.jpg', 'img3.jpg', 'img4.jpg', 'img5.jpg'].map((img, idx) => (
-              <div key={idx} className="w-1/3 flex-shrink-0 mx-4">
-                <img
-                  src={`/images/${img}`}
-                  alt={`Feature ${idx + 1}`}
-                  className="rounded shadow-md w-full h-auto"
-                />
-              </div>
-            ))}
-            {/* Second set for infinite scroll */}
-            {['img1.jpg', 'img2.jpg', 'img3.jpg', 'img4.jpg', 'img5.jpg'].map((img, idx) => (
-              <div key={`copy-${idx}`} className="w-1/3 flex-shrink-0 mx-4">
-                <img
-                  src={`/images/${img}`}
-                  alt={`Feature ${idx + 1}`}
-                  className="rounded shadow-md w-full h-auto"
-                />
-              </div>
-            ))}
-          </div>
+            {['img1.avif', 'img2.avif', 'img3.avif', 'img4.avif'].map((img, idx) => {
+              const labelMap = {
+                'img1.avif': '160+ countries worldwide',
+                'img2.avif': '1+ million pro users',
+                'img3.avif': '30+ million app downloads',
+                'img4.avif':'2+ billion tasks completed'
+              };
+              const label = labelMap[img];
+              return (
+        <div key={idx} className="w-1/3 flex-shrink-0 mx-4 text-center">
+          <img
+            src={`/images/${img}`}
+            alt={label}
+            className="rounded shadow-md w-full h-50"
+          />
+          <p className="mt-2 text-lg text-gray-700">
+    <BoldFirstPart text={label} />
+  </p>
+        
+        </div>
+      );
+    })}
+
+    {/* Duplicate for seamless scroll */}
+    {['img1.avif', 'img2.avif', 'img3.avif', 'img4.avif'].map((img, idx) => {
+      const labelMap = {
+        'img1.avif': '160+ countries worldwide',
+                'img2.avif': '1+ million pro users',
+                'img3.avif': '30+ million app downloads',
+                'img4.avif':'2+ billion tasks completed'
+      };
+
+      const label = labelMap[img];
+
+      return (
+        <div key={`copy-${idx}`} className="w-1/3 flex-shrink-0 mx-4 text-center">
+          <img
+            src={`/images/${img}`}
+            alt={label}
+            className="rounded shadow-md w-full h-auto"
+          />
+           <p className="mt-2 text-lg text-gray-700">
+           <BoldFirstPart text={label} />
+           </p>
+        </div>
+      );
+    })}
+  </div>
+</div>
         </div>
 
-      </div>
-
+            
       {/* Add custom animation keyframes */}
       <style jsx>{`
         @keyframes marquee {
@@ -406,7 +472,7 @@ export default function Home() {
         }
         .animate-marquee {
           display: flex;
-          width: 200%;
+          width: 100%;
           animation: marquee 30s linear infinite;
         }
       `}</style>
@@ -415,6 +481,177 @@ export default function Home() {
 
 
 
+    {/* Last section */}
+    <section className="py-16 px-6 bg-gradient-to-b from-pink-50 via-pink-100">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-5xl/12 font-bold mt-10 mb-10">Gain calmness and clarity with the<br></br> world’s most beloved productivity app
+          </h2>
+          <p className="text-lg">374000+ ★★★★★ reviews on Google Play and App Store
+          </p>
+          <a href="/register" className="bg-red-600 text-white px-6 py-4 rounded-2xl font-semibold hover:bg-red-700 transition cursor-pointer text-xl mt-10 inline-block">
+            Start for free
+          </a><br></br>
+
+            <a href="/login" className="text-gray-500 font-semibold hover:text-gray-800 hover:bg-gray-200 mt-5 px-1 py-2 inline-flex items-center space-x-1">
+            <span>📖</span>
+            <span>Download apps</span>
+            </a>
+        </div>
+    
+
+
+    {/* Footer */}
+    <footer className="mt-20 pt-16 border-t border-gray-300 text-gray-800">
+  {/* Top Line + Content */}
+  <div className="max-w-7xl px-6">
+    <div className="flex flex-col md:flex-row justify-between gap-10 mb-12">
+      {/* Left Column */}
+      <div className="md:w-1/4">
+        <div className="flex items-center space-x-2 mb-4">
+          <span className="w-14 h-14 bg-black-500 rounded flex items-center justify-center text-white">📝</span>
+          <h3 className="text-3xl font-bold">Clarity</h3>
+        </div>
+        <p className="text-xl text-gray-900">
+          Join millions of people who organize work and life with Clarity.
+        </p>
+      </div>
+
+
+
+
+      {/* Right Columns – Features, Resources, Company, Social */}
+      <div className="md:flex md:space-x-10 lg:space-x-10 gap-10 xl:space-x-12">
+      {/* Features Column */}
+      <div className="mb-6 md:mb-0">
+        <h4 className="font-bold text-gray-900 text-lg mb-7">Features</h4>
+        <ul className="space-y-3 font-semibold text-gray-900">
+          <li><a href="/how-it-works" className="hover:text-red-300 ">How It Works</a></li>
+          <li><a href="/teams" className="hover:text-red-300">For Teams</a></li>
+          <li><a href="/pricing" className="hover:text-red-300">Pricing</a></li>
+          <li><a href="/templates" className="hover:text-red-300">Templates</a></li>
+        </ul>
+      </div>
+
+      {/* Resources Column */}
+      <div className="mb-6 md:mb-0">
+        <h4 className="font-bold text-gray-900 text-lg  mb-7">Resources</h4>
+        <ul className="space-y-3 text-md font-semibold text-gray-900">
+          <li><a href="/apps" className="hover:text-red-300">Download Apps</a></li>
+          <li><a href="/help" className="hover:text-red-300
+          ">Help Center</a></li>
+          <li><a href="/methods" className="hover:text-red-300
+          ">Productivity Methods</a></li>
+          <li><a href="/integrations" className="hover:text-red-300
+          ">Integrations</a></li>
+          <li><a href="/partners" className="hover:text-red-300
+          ">Channel Partners</a></li>
+          <li><a href="/api" className="hover:text-red-300
+          ">Developer API</a></li>
+          <li><a href="/status" className="hover:text-red-300
+          ">Status</a></li>
+        </ul>
+      </div>
+
+      {/* Company Column */}
+      <div className="mb-6 md:mb-0">
+        <h4 className="font-bold text-gray-900 text-lg mb-7">Company</h4>
+        <ul className="space-y-3 font-semibold text-gray-900">
+          <li><a href="/about" className="hover:text-red-300
+          ">About Us</a></li>
+          <li><a href="/careers" className="hover:text-red-300
+          ">Careers</a></li>
+          <li><a href="/inspiration" className="hover:text-red-300
+          ">Inspiration Hub</a></li>
+          <li><a href="/press" className="hover:text-red-300
+          ">Press</a></li>
+          <li><a href="/twist" className="hover:text-red-300
+          ">Twist</a></li>
+        </ul>
+      </div>
+
+      {/* Social / Language Column */}
+      <div className="mb-6 md:mb-0">
+        <div className="flex flex-col items-center space-y-8 mt-2 mb-10">
+          <a href="https://youtube.com " target="_blank" rel="noopener noreferrer" className="text-sm">
+            <img src="/images/youtube.svg" alt="YouTube" className="w-4 h-4 mb-2" />
+          </a>
+
+          <a href="https://linkedin.com " target="_blank" rel="noopener noreferrer" className="text-sm">
+            <img src="/images/linkedin.svg" alt="LinkedIn" className="w-4 h-4 mb-2" />
+          </a>
+
+          <a href="https://instagram.com " target="_blank" rel="noopener noreferrer" className="text-sm">
+            <img src="/images/instagram.svg" alt="Instagram" className="w-4 h-4 mb-2" />
+          </a>
+
+
+          <a href="https://reddit.com " target="_blank" rel="noopener noreferrer" className="text-sm">
+            <img src="/images/reddit.svg" alt="Reddit" className="w-4 h-4 mb-2" />
+          </a>
+        </div>
+
+        
+      </div>
+      </div>
+    </div>
+
+    {/* Bottom Row */}
+    <div className="pt-6 flex flex-col md:flex-row justify-between items-center text-sm text-gray-900">
+      {/* Legal Links & Copyright */}
+      <div className="flex flex-wrap items-center font-semibold gap-2 mb-4 md:mb-0">
+        <span className='cursor-pointer'>Security</span>
+        <span className="hidden sm:inline ">•</span>
+        <span className='cursor-pointer'>Privacy</span>
+        <span className="hidden sm:inline">•</span>
+        <span className='cursor-pointer'>Terms</span>
+        <span className="hidden sm:inline">•</span>
+        <span className='cursor-pointer'>© Doist Inc.</span>
+      </div>
+
+      {/* Language Button */}
+      <div className="relative inline-block">
+  {/* Language Button */}
+  <button
+    onClick={() => setIsOpen(!isOpen)}
+    className="bg-gray-200 px-4 py-2 rounded flex items-center space-x-2 hover:bg-gray-300 transition"
+  >
+    <span>🌐</span>
+    <span>English</span>
+  </button>
+
+  {/* Dropdown positioned ABOVE the button */}
+  {isOpen && (
+    <div className="absolute -top-10 left-0 w-40 bg-white shadow-lg rounded border border-gray-200 z-10">
+      <ul className="py-2 text-sm">
+        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Español</li>
+        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Français</li>
+        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Português</li>
+        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Deutsch</li>
+      </ul>
+    </div>
+  )}
+</div>
+
+
+
+
+
+    </div>
+  </div>
+</footer>
+    </section>
+
+
+
+    {showLoader && (
+        <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+          <div className="text-center">
+            {/* Logo */}
+            {/* Spinner */}
+            <div className="mt-4 w-10 h-10 border-4 border-blue-200 border-t-red-600 rounded-full animate-spin mx-auto"></div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
