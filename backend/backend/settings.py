@@ -25,8 +25,11 @@ SECRET_KEY = 'django-insecure-ytfutrraue$$*3m1(bc*+5_ieva3(l&slomqn(mexgf1e2kf78
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = [
+    '.onrender.com',  # allows all subdomains of onrender.com
+    'clarity-backend.onrender.com',  # specific domain
+    'clarity-rust.vercel.app',  # your frontend domain
+]
 
 # Application definition
 
@@ -138,12 +141,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-CORS_ALLOW_ALL_ORIGINS = True  # For development only
+CORS_ALLOW_ALL_ORIGINS = [
+     "https://clarity-backend.onrender.com",
+    "https://clarity-rust.vercel.app",
+]
 
 from datetime import timedelta
 
