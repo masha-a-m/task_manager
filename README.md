@@ -44,7 +44,7 @@ Clarity is a modern task management application designed to help users organize 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/masha-a-m/task_manager_app.git
+   git clone https://github.com/masha-a-m/task_manager.git
    cd clarity-task-manager
    ```
 
