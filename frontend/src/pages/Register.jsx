@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+
 document.title = "Sign Up – Clarity";
 
 export default function Register() {
@@ -42,8 +43,15 @@ export default function Register() {
     // 4. Set default Authorization header for all future requests
     axios.defaults.headers.common['Authorization'] = `Bearer ${access}`;
 
+    
+
     // 5. Only now redirect to dashboard
-    navigate('/dashboard');
+    navigate('/onboarding', {
+      state: { 
+          isNewUser: true,  // This will trigger onboarding
+          currentStep: 1    // Start from step 1
+        } 
+    });
   } catch (err) {
     console.error('Registration failed:', err.response?.data || err.message);
 

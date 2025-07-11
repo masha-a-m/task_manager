@@ -31,6 +31,7 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ['id', 'title', 'description', 'completed', 'due_date', 'order']
+
         read_only_fields = ['id', 'order']  # Prevent manual ID/order assignment
 
     def validate_title(self, value):

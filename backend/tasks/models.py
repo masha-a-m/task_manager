@@ -7,7 +7,7 @@ class CustomUser(AbstractUser):
     username = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     has_completed_onboarding = models.BooleanField(default=False)
-
+    # is_new_user = models.BooleanField(default=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
@@ -21,6 +21,7 @@ class Task(models.Model):
     completed = models.BooleanField(default=False)
     due_date = models.DateTimeField(null=True, blank=True)
     order = models.PositiveIntegerField(default=0)
+    # priority = models.IntegerField(default=4)  # or null=True
 
     def __str__(self):
         return self.title

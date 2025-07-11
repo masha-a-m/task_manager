@@ -173,3 +173,13 @@ def upcoming_tasks(request):
     ).order_by('due_date')
     serializer = TaskSerializer(tasks, many=True)
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def complete_onboarding(request):
+    user = request.user
+    user.is_new_user = False
+    user.save()
+    return Response({'status': 'onboarding completed'})
+

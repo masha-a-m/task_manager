@@ -25,7 +25,8 @@ urlpatterns = [
     path('', include(router.urls)),
     path('reorder/', reorder_tasks, name='reorder_tasks'),
     path('upcoming/', upcoming_tasks, name='upcoming_tasks'),
-     path('api/user-status/', UserStatusView.as_view(), name='user-status'),
+    path('api/user/', CurrentUserView.as_view(), name='current-user'),
+    path('api/user-status/', UserStatusView.as_view(), name='user-status'),  # Keep this consistent with frontend
     path('api/complete-onboarding/', CompleteOnboardingView.as_view(), name='complete-onboarding'),
     path('user/', CurrentUserView.as_view(), name='current-user'),
     

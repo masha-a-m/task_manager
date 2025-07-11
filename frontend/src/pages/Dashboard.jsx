@@ -1,26 +1,844 @@
-// Dashboard.jsx
+// import React, { useEffect, useState } from 'react';
+// import { useNavigate } from 'react-router-dom';
+// import axios from 'axios';
+// import {
+//   DndContext,
+//   closestCenter,
+//   KeyboardSensor,
+//   PointerSensor,
+//   useSensor,
+//   useSensors,
+//   DragOverlay,
+//   defaultDropAnimationSideEffects,
+// } from '@dnd-kit/core';
+// import {
+//   arrayMove,
+//   SortableContext,
+//   sortableKeyboardCoordinates,
+//   verticalListSortingStrategy,
+// } from '@dnd-kit/sortable';
+// import { SortableItem } from './SortableItem';
+// import OnboardingSteps from './Onboarding';
+
+// const dropAnimationConfig = {
+//   sideEffects: defaultDropAnimationSideEffects({
+//     styles: {
+//       active: {
+//         opacity: '0.5',
+//       },
+//     },
+//   }),
+// };
+
+// document.title = 'Clarity - Dashboard';
+
+// export default function Dashboard() {
+//   const [tasks, setTasks] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+//   const [user, setUser] = useState(null);
+//   const [isNewUser, setIsNewUser] = useState(false);
+//   const [showTaskForm, setShowTaskForm] = useState(false);
+//   const [editingTaskId, setEditingTaskId] = useState(null);
+//   const [searchTerm, setSearchTerm] = useState('');
+//   const [showSidebarCalendar, setShowSidebarCalendar] = useState(false);
+//   const [selectedDate, setSelectedDate] = useState(null);
+//   const [newTask, setNewTask] = useState({
+//     title: '',
+//     description: '',
+//     date: '',
+//     priority: ''
+//   });
+//   const [showCalendar, setShowCalendar] = useState(false);
+//   const [showPriorityDropdown, setShowPriorityDropdown] = useState(false);
+//   const [activeId, setActiveId] = useState(null);
+//   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+//   const priorities = [
+//     { level: 1, color: 'red' },
+//     { level: 2, color: 'orange' },
+//     { level: 3, color: 'blue' },
+//     { level: 4, color: 'gray' }
+//   ];
+
+//   const filteredTasks = tasks.filter(task => {
+//     if (!searchTerm) return true;
+//     const term = searchTerm.toLowerCase();
+//     return (
+//       task.title.toLowerCase().includes(term) ||
+//       (task.description && task.description.toLowerCase().includes(term))
+//     );
+//   });
+
+//   const getTasksForSelectedDate = (tasks, selectedDate) => {
+//     if (!selectedDate) return tasks;
+    
+//     const selected = new Date(selectedDate);
+//     const selectedDateStr = selected.toISOString().split('T')[0];
+
+//     return tasks.filter(task => {
+//       if (!task.date) return false;
+      
+//       try {
+//         const taskDateStr = task.date.split(', ')[1];
+//         const taskDate = new Date(taskDateStr);
+//         const taskDateNormalized = taskDate.toISOString().split('T')[0];
+
+//         return selectedDateStr === taskDateNormalized;
+//       } catch (e) {
+//         console.error('Error parsing task date:', e);
+//         return false;
+//       }
+//     });
+//   };
+
+//   useEffect(() => {
+//     const handleClickOutside = (event) => {
+//       if (showSidebarCalendar && !event.target.closest('.relative')) {
+//         setShowSidebarCalendar(false);
+//       }
+//     };
+
+//     document.addEventListener('mousedown', handleClickOutside);
+//     return () => {
+//       document.removeEventListener('mousedown', handleClickOutside);
+//     };
+//   }, [showSidebarCalendar]);
+
+//   const sensors = useSensors(
+//     useSensor(PointerSensor),
+//     useSensor(KeyboardSensor, {
+//       coordinateGetter: sortableKeyboardCoordinates,
+//     })
+//   );
+
+//   const handleDateSelect = (date) => {
+//     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+//     const selectedDate = new Date(date);
+//     const dayName = days[selectedDate.getDay()];
+//     const formattedDate = `${dayName}, ${selectedDate.toLocaleDateString('en-US', {
+//       month: '2-digit',
+//       day: '2-digit',
+//       year: 'numeric'
+//     })}`;
+//     setNewTask({ ...newTask, date: formattedDate });
+//     setShowCalendar(false);
+//   };
+
+//   // const handleDeleteTask = (taskId) => {
+//   //   if (window.confirm("Are you sure you want to delete this task?")) {
+//   //     setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+//   //   }
+//   // };
+
+
+//   const priorities = [
+//     { level: 1, color: 'bg-red-500' },
+//     { level: 2, color: 'bg-orange-500' },
+//     { level: 3, color: 'bg-blue-500' },
+//     { level: 4, color: 'bg-gray-500' }
+//   ];
+
+
+//   const handleDeleteTask = async (taskId) => {
+//     if (window.confirm("Are you sure you want to delete this task?")) {
+//       try {
+//         await axios.delete(
+//           `http://localhost:8000/api/tasks/${taskId}/`,
+//           {
+//             headers: {
+//               Authorization: `Bearer ${localStorage.getItem('access_token')}`
+//             }
+//           }
+//         );
+        
+//         setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+        
+//       } catch (error) {
+//         console.error('Error deleting task:', error);
+//         alert('Failed to delete task. Please try again.');
+//       }
+//     }
+//   };
+
+
+//   const navigate = useNavigate();
+
+//   useEffect(() => {
+//     const checkUserStatus = async () => {
+//       try {
+//         const response = await axios.get('http://localhost:8000/api/user-status/', {
+//           headers: {
+//             Authorization: `Bearer ${localStorage.getItem('access_token')}`
+//           }
+//         });
+//         setIsNewUser(response.data.is_new_user);        
+//       } catch (err) {
+//         console.error('Error checking user status:', err);
+//       }
+//     };
+
+//     const fetchUserData = async () => {
+//       try {
+//         const response = await axios.get('http://localhost:8000/api/user/', {
+//           headers: {
+//             Authorization: `Bearer ${localStorage.getItem('access_token')}`
+//           }
+//         });
+//         setUser(response.data);
+//       } catch (err) {
+//         console.error('Error fetching user data:', err);
+//         setError(err);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchUserData();
+//     checkUserStatus();
+//   }, []);
+
+
+//   const fetchTasks = async () => {
+//     try {
+//       const response = await axios.get('http://localhost:8000/api/tasks/', {
+//         headers: {
+//           Authorization: `Bearer ${localStorage.getItem('access_token')}`
+//         }
+//       });
+//       setTasks(response.data);
+//     } catch (err) {
+//       console.error('Error fetching tasks:', err);
+//     }
+//   };
+  
+//   useEffect(() => {
+//     fetchTasks();
+//   }, []);
+
+
+//   // useEffect(() => {
+//   //   const savedTasks = localStorage.getItem('clarity-tasks');
+//   //   if (savedTasks) {
+//   //     setTasks(JSON.parse(savedTasks));
+//   //   }
+//   // }, []);
+  
+//   // useEffect(() => {
+//   //   localStorage.setItem('clarity-tasks', JSON.stringify(tasks));
+//   // }, [tasks]);
+
+//   // const handleAddTask = () => {
+//   //   if (newTask.title.trim()) {
+//   //     const taskToAdd = {
+//   //       ...newTask,
+//   //       id: editingTaskId || Date.now().toString(),
+//   //       date: newTask.date || null,
+//   //       priority: newTask.priority || 4
+//   //     };
+  
+//   //     setTasks(prevTasks => {
+//   //       const updatedTasks = editingTaskId 
+//   //         ? prevTasks.map(task => task.id === editingTaskId ? taskToAdd : task)
+//   //         : [...prevTasks, taskToAdd];
+        
+//   //       return updatedTasks.sort((a, b) => (a.priority || 4) - (b.priority || 4));
+//   //     });
+
+//   //     setNewTask({ title: '', description: '', date: '', priority: '' });
+//   //     setEditingTaskId(null);
+//   //     setShowTaskForm(false);
+//   //   }
+//   // };
+
+      
+// const handleAddTask = async () => {
+//   if (newTask.title.trim()) {
+//     try {
+//       const taskToAdd = {
+//         title: newTask.title,
+//         description: newTask.description || '',
+//         date: newTask.date || null,
+//         priority: newTask.priority || 4
+//       };
+
+//       if (editingTaskId) {
+//         // Update existing task
+//         const response = await axios.put(
+//           `http://localhost:8000/api/tasks/${editingTaskId}/`,
+//           taskToAdd,
+//           {
+//             headers: {
+//               Authorization: `Bearer ${localStorage.getItem('access_token')}`
+//             }
+//           }
+//         );
+        
+//         setTasks(prevTasks => 
+//           prevTasks.map(task => 
+//             task.id === editingTaskId ? response.data : task
+//           ).sort((a, b) => (a.priority || 4) - (b.priority || 4))
+//         );
+//       } else {
+//         // Create new task
+//         const response = await axios.post(
+//           'http://localhost:8000/api/tasks/',
+//           taskToAdd,
+//           {
+//             headers: {
+//               Authorization: `Bearer ${localStorage.getItem('access_token')}`
+//             }
+//           }
+//         );
+        
+//         setTasks(prevTasks => 
+//           [...prevTasks, response.data].sort((a, b) => (a.priority || 4) - (b.priority || 4))
+//         );
+//       }
+
+//       // Reset form
+//       setNewTask({ title: '', description: '', date: '', priority: '' });
+//       setEditingTaskId(null);
+//       setShowTaskForm(false);
+
+//     } catch (error) {
+//       console.error('Error saving task:', error);
+//       alert('Failed to save task. Please try again.');
+//     }
+//   }
+// };
+
+
+
+//   const handleDragStart = (event) => {
+//     const { active } = event;
+//     setActiveId(active.id);
+//   };
+
+//   const handleDragEnd = (event) => {
+//     const { active, over } = event;
+    
+//     if (active.id !== over.id) {
+//       setTasks((items) => {
+//         const oldIndex = items.findIndex(item => item.id === active.id);
+//         const newIndex = items.findIndex(item => item.id === over.id);
+        
+//         return arrayMove(items, oldIndex, newIndex);
+//       });
+//     }
+    
+//     setActiveId(null);
+//   };
+
+//   const handleDragCancel = () => {
+//     setActiveId(null);
+//   };
+
+//   const activeTask = activeId ? tasks.find(task => task.id === activeId) : null;
+
+//   if (loading) return <div>Loading...</div>;
+//   if (error) return <div>Error loading user data: {error.message}</div>;
+//   if (!user) return <div>No user data found</div>;
+
+//   const handleOnboardingComplete = () => {
+//     setIsNewUser(false);
+//   };
+
+//   return (
+//     <div className="flex min-h-screen bg-gray-50">
+//       {/* Sidebar */}
+//       <div className="w-64 bg-white border-r border-gray-200 p-6">
+//         {/* User Profile */}
+//         <div className="flex items-center mb-8">
+//           <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
+//             {user?.username?.charAt(0).toUpperCase()}
+//           </div>
+//           <span className="ml-3 font-medium">{user?.username}</span>
+//         </div>
+
+//         {/* Navigation */}
+//         {!isNewUser && (
+//           <nav className="space-y-4">
+//             <button 
+//               onClick={() => setShowTaskForm(true)}
+//               className="flex items-center text-left bg-red-500 hover:bg-red-600 text-white py-1 px-4 rounded-lg font-sm cursor-pointer"
+//             >
+//               <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+//               </svg>
+//               <span>Add Task</span>
+//             </button>
+          
+//             <div className="flex items-center text-gray-500 mt-8 mb-6">
+//               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+//               </svg>
+//               <input
+//                 type="text"
+//                 placeholder="Search tasks..."
+//                 className="ml-2 bg-transparent border-none focus:outline-none placeholder-gray-400"
+//                 value={searchTerm}
+//                 onChange={(e) => setSearchTerm(e.target.value)}
+//                 style={{ caretColor: '#ef4444' }}
+//               />
+//             </div>
+
+//             <div className='relative'>
+//               <div className="flex items-center text-gray-500 mb-6 cursor-pointer"
+//                 onClick={() => setShowSidebarCalendar(!showSidebarCalendar)}
+//               >
+//                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+//                 </svg>
+//                 <span className="ml-3">Calendar</span>
+
+//                 {showSidebarCalendar && (
+//                   <div className="absolute z-50 mt-2 left-0 bg-white border border-gray-200 rounded-lg shadow-lg p-3">
+//                     <input 
+//                       type="date" 
+//                       onChange={(e) => {
+//                         setSelectedDate(e.target.value);
+//                         setShowSidebarCalendar(false);
+//                       }}
+//                       className="p-2 border rounded w-full"
+//                       onClick={(e) => e.stopPropagation()} 
+//                     />
+//                   </div>
+//                 )}
+//               </div>
+//             </div>
+            
+//             <div className="flex items-center text-gray-500 mb-6 cursor-pointer" 
+//               onClick={() => {
+//                 setSelectedDate(null);
+//                 setSearchTerm('');
+//               }} 
+//             >
+//               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+//               </svg>
+//               <span className="ml-3">Tasks</span>
+//             </div>
+
+//             <div className="mt-12 border-t border-gray-300 py-6">
+//               <h3 className="text-sm font-semibold text-gray-500 tracking-wider">My Projects</h3>
+//               <div className="mt-4 space-y-2 max-h-60 overflow-y-auto">
+//                 {tasks.slice(0, 5).map(task => (
+//                   <div 
+//                     key={task.id} 
+//                     className="flex items-center p-2 hover:bg-gray-100 rounded cursor-pointer"
+//                     onClick={() => {
+//                       setSelectedDate(null);
+//                       setSearchTerm(task.title);
+//                     }}
+//                   >
+//                     <div className={`w-3 h-3 rounded-full mr-2 ${
+//                       task.priority === 1 ? 'bg-red-500' :
+//                       task.priority === 2 ? 'bg-orange-500' :
+//                       task.priority === 3 ? 'bg-blue-500' : 'bg-gray-500'
+//                     }`}></div>
+//                     <span className="text-sm truncate">{task.title}</span>
+//                   </div>
+//                 ))}
+//                 {tasks.length === 0 && (
+//                   <p className="text-gray-400 text-sm">No tasks yet. Add one to get started!</p>
+//                 )}
+//                 {tasks.length > 5 && (
+//                   <p className="text-gray-400 text-sm">+ {tasks.length - 5} more tasks</p>
+//                 )}
+//               </div>
+//             </div>
+
+//             <div className="mt-auto pt-6 border-t border-gray-200">
+//               <button 
+//                 onClick={() => setShowLogoutConfirm(true)}
+//                 className="flex items-center text-gray-500 hover:text-red-500 w-full"
+//               >
+//                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+//                 </svg>
+//                 <span className='cursor-pointer'>Logout</span>
+//               </button>
+//             </div>
+//           </nav>
+//         )}
+//       </div>
+
+//       {/* Main Content */}
+//       {isNewUser ? (
+//         <OnboardingSteps 
+//           user={user} 
+//           setUser={setUser} 
+//           onComplete={handleOnboardingComplete}
+//         />
+//       ) : (
+//         <div>
+//           {showTaskForm ? (
+//             <div className="max-w-2xl mt-10 ml-10 w-200 bg-white p-6 rounded-lg shadow-md">
+//               <input
+//                 type="text"
+//                 placeholder="My Language Lesson"
+//                 className="border-gray-200 focus:outline-none focus:border-red-500 text-md"
+//                 value={newTask.title}
+//                 onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+//               />
+//               <input
+//                 type="text"
+//                 placeholder="Description"
+//                 className="w-full border-gray-200 text-xs focus:outline-none focus:border-red-500 mt-4"
+//                 value={newTask.description}
+//                 onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+//               />
+              
+//               <div className="flex items-center mt-4">
+//                 <div className="relative">
+//                   <button 
+//                     className="flex items-center text-gray-600 cursor-pointer"
+//                     onClick={() => setShowCalendar(!showCalendar)}
+//                   >
+//                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+//                     </svg>
+//                     <span>{newTask.date || 'Date'}</span>
+//                   </button>
+//                   {showCalendar && (
+//                     <div className="absolute z-10 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
+//                       <input 
+//                         type="date" 
+//                         onChange={(e) => handleDateSelect(e.target.value)}
+//                         className="p-2 border rounded"
+//                       />
+//                     </div>
+//                   )}
+//                 </div>
+
+//                 <div className="relative ml-6">
+//                   <button 
+//                     className="flex items-center text-gray-600 cursor-pointer"
+//                     onClick={() => setShowPriorityDropdown(!showPriorityDropdown)}
+//                   >
+//                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+//                     </svg>
+//                     <span>{newTask.priority ? `Priority ${newTask.priority}` : 'Priority'}</span>
+//                   </button>
+//                   {showPriorityDropdown && (
+//                     <div className="absolute z-10 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 w-40">
+//                       {priorities.map((p) => (
+//                         <div 
+//                           key={p.level}
+//                           className="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
+//                           onClick={() => {
+//                             setNewTask({ ...newTask, priority: p.level });
+//                             setShowPriorityDropdown(false);
+//                           }}
+//                         >
+//                           <div className={`w-4 h-4 rounded-full mr-2 bg-${p.color}500`}></div>
+//                           <span>Priority {p.level}</span>
+//                         </div>
+//                       ))}
+//                     </div>
+//                   )}
+//                 </div>
+//               </div>
+
+//               <div className="border-t border-gray-200 my-4"></div>
+
+//               <div className="flex justify-end space-x-4">
+//                 <button 
+//                   className="px-4 py-2 text-gray-600 hover:text-gray-800 cursor-pointer"
+//                   onClick={() => setShowTaskForm(false)}
+//                 >
+//                   Cancel
+//                 </button>
+//                 <button 
+//                   className={`px-4 cursor-pointer rounded-lg ${newTask.title ? 'bg-red-500 hover:bg-red-600' : 'bg-red-300'} text-white`}
+//                   disabled={!newTask.title}
+//                   onClick={handleAddTask}
+//                 >
+//                   {editingTaskId ? 'Update Task' : 'Add Task'}
+//                 </button>
+//               </div>
+//             </div>
+//           ) : (
+//             <div className="max-w-2xl">
+//               {selectedDate && (
+//                 <div className="ml-10 mt-10 mb-6 flex items-center">
+//                   <h2 className="text-xl font-semibold">
+//                     Tasks for {new Date(selectedDate).toLocaleDateString('en-US', { 
+//                       weekday: 'long', 
+//                       month: 'long', 
+//                       day: 'numeric', 
+//                       year: 'numeric' 
+//                     })}
+//                   </h2>
+//                   <button 
+//                     onClick={() => setSelectedDate(null)}
+//                     className="ml-4 text-gray-500 hover:text-gray-700"
+//                   >
+//                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+//                     </svg>
+//                   </button>
+//                 </div>
+//               )}
+
+//               {filteredTasks.length > 0 ? (
+//                 <DndContext
+//                   sensors={sensors}
+//                   collisionDetection={closestCenter}
+//                   onDragStart={handleDragStart}
+//                   onDragEnd={handleDragEnd}
+//                   onDragCancel={handleDragCancel}
+//                 >
+//                   <div className="min-h-screen bg-gray-50">
+//                     <SortableContext 
+//                       items={getTasksForSelectedDate(filteredTasks, selectedDate)}
+//                       strategy={verticalListSortingStrategy}
+//                     >
+//                       {getTasksForSelectedDate(filteredTasks, selectedDate).length > 0 ? (
+//                         <div className="space-y-4 mt-10 ml-10 w-160">
+//                           {getTasksForSelectedDate(filteredTasks, selectedDate).map((task) => (
+//                             <SortableItem 
+//                               key={task.id}
+//                               id={task.id}
+//                               task={task}
+//                               onEdit={(taskToEdit) => {
+//                                 setNewTask(taskToEdit);
+//                                 setEditingTaskId(taskToEdit.id);
+//                                 setShowTaskForm(true);
+//                               }}
+//                               onDelete={handleDeleteTask}
+//                             />
+//                           ))}
+//                         </div>
+//                       ) : (
+//                         <div className="ml-10 mt-10 text-center">
+//                           <p className="text-gray-500">No tasks found for this date</p>
+//                           <button
+//                             onClick={() => setShowTaskForm(true)}
+//                             className="mt-4 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg cursor-pointer"
+//                           >
+//                             Add Task for This Date
+//                           </button>
+//                         </div>
+//                       )}
+//                     </SortableContext>
+//                   </div>
+
+//                   <DragOverlay dropAnimation={dropAnimationConfig}>
+//                     {activeTask ? (
+//                       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 shadow-lg opacity-80">
+//                         <div className="flex justify-between items-start px-12">
+//                           <div className="flex-1">
+//                             <h3 className="font-medium">{activeTask.title}</h3>
+//                             {activeTask.description && <p className="text-gray-600 text-sm mt-1">{activeTask.description}</p>}
+//                             {activeTask.date && <p className="text-gray-500 text-xs mt-2">{activeTask.date}</p>}
+//                           </div>
+//                           <button className="text-gray-400 hover:text-gray-600">
+//                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+//                             </svg>
+//                           </button>
+//                         </div>
+//                       </div>
+//                     ) : null}
+//                   </DragOverlay>
+
+                  
+//                 </DndContext>
+//               ) : (
+//                 <div className="text-center mt-20">
+//                   {searchTerm ? (
+//                     <div className='ml-20'>
+//                       <h1 className="text-3xl font-bold mb-4">No tasks found</h1>
+//                       <p className="text-gray-600 mb-8">No tasks match your search for "{searchTerm}"</p>
+//                     </div>
+//                   ) : (
+//                     <div className='mx-auto ml-20'>
+//                       <h1 className="text-3xl font-bold mb-4">Capture now, plan later</h1>
+//                       <p className="text-gray-600 mb-8">Inbox is your go-to spot for quick task entry. Clear your mind now, organize when you're ready.</p>
+//                     </div>
+//                   )}
+//                   <button 
+//                     onClick={() => setShowTaskForm(true)}
+//                     className="ml-20 bg-red-500 hover:bg-red-600 text-white py-3 px-8 rounded-lg font-medium cursor-pointer"
+//                   >
+//                     Add Task
+//                   </button>
+//                 </div>
+//               )}
+//             </div>
+//           )}
+//         </div>
+//       )}
+
+//       {showLogoutConfirm && (
+//         <div className="fixed inset-0 bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50">
+//           <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+//             <h3 className="text-lg font-medium mb-4">Are you sure you want to logout?</h3>
+//             <div className="flex justify-end space-x-3">
+//               <button
+//                 onClick={() => setShowLogoutConfirm(false)}
+//                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 cursor-pointer"
+//               >
+//                 Cancel
+//               </button>
+//               <button
+//                 onClick={() => {
+//                   localStorage.removeItem('access_token');
+//                   navigate('/login');
+//                 }}
+//                 className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 cursor-pointer"
+//               >
+//                 Logout
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
+
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragOverlay,
+  defaultDropAnimationSideEffects,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { SortableItem } from './SortableItem';
+import OnboardingSteps from './Onboarding';
+
+const dropAnimationConfig = {
+  sideEffects: defaultDropAnimationSideEffects({
+    styles: {
+      active: {
+        opacity: '0.5',
+      },
+    },
+  }),
+};
 
 document.title = 'Clarity - Dashboard';
 
-
 export default function Dashboard() {
-  const [tasks, setTasks] = useState([]); // Initialize as empty array
+  const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
-  const [isNewUser, setIsNewUser] = useState(true);
-  const [currentStep, setCurrentStep] = useState(1);
-  const [selectedUsage, setSelectedUsage] = useState(null);
-  const [selectedCalendar, setSelectedCalendar] = useState(null);
-  const [selectedTaskMethod, setSelectedTaskMethod] = useState(null);
-  const [teamSelected, setTeamSelected] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
+  const [showTaskForm, setShowTaskForm] = useState(false);
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showSidebarCalendar, setShowSidebarCalendar] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [newTask, setNewTask] = useState({
+    title: '',
+    description: '',
+    date: '',
+    priority: ''
+  });
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [showPriorityDropdown, setShowPriorityDropdown] = useState(false);
+  const [activeId, setActiveId] = useState(null);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  const priorities = [
+    { level: 1, color: 'red' },
+    { level: 2, color: 'orange' },
+    { level: 3, color: 'blue' },
+    { level: 4, color: 'gray' }
+  ];
+
+  const filteredTasks = tasks.filter(task => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    return (
+      task.title.toLowerCase().includes(term) ||
+      (task.description && task.description.toLowerCase().includes(term))
+    );
+  });
+
+  const getTasksForSelectedDate = (tasks, selectedDate) => {
+    if (!selectedDate) return tasks;
+    
+    const selected = new Date(selectedDate);
+    const selectedDateStr = selected.toISOString().split('T')[0];
+
+    return tasks.filter(task => {
+      if (!task.date) return false;
+      
+      try {
+        const taskDateStr = task.date.split(', ')[1];
+        const taskDate = new Date(taskDateStr);
+        const taskDateNormalized = taskDate.toISOString().split('T')[0];
+
+        return selectedDateStr === taskDateNormalized;
+      } catch (e) {
+        console.error('Error parsing task date:', e);
+        return false;
+      }
+    });
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showSidebarCalendar && !event.target.closest('.relative')) {
+        setShowSidebarCalendar(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSidebarCalendar]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDateSelect = (date) => {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const selectedDate = new Date(date);
+    const dayName = days[selectedDate.getDay()];
+    const formattedDate = `${dayName}, ${selectedDate.toLocaleDateString('en-US', {
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric'
+    })}`;
+    setNewTask({ ...newTask, date: formattedDate });
+    setShowCalendar(false);
+  };
+
+  const handleDeleteTask = (taskId) => {
+    if (window.confirm("Are you sure you want to delete this task?")) {
+      setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+    }
+  };
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is new (you'll need to implement this logic)
     const checkUserStatus = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/user-status/', {
@@ -28,55 +846,121 @@ export default function Dashboard() {
             Authorization: `Bearer ${localStorage.getItem('access_token')}`
           }
         });
-        setIsNewUser(response.data.is_new_user);
+        setIsNewUser(response.data.is_new_user);        
       } catch (err) {
         console.error('Error checking user status:', err);
       }
     };
 
-    // Fetch user data
     const fetchUserData = async () => {
-  try {
-    const response = await axios.get('http://localhost:8000/api/user/', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('access_token')}`
+      try {
+        const response = await axios.get('http://localhost:8000/api/user/', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access_token')}`
+          }
+        });
+        setUser(response.data);
+      } catch (err) {
+        console.error('Error fetching user data:', err);
+        setError(err);
+      } finally {
+        setLoading(false);
       }
-    });
-    console.log('User data response:', response.data); // Add this line
-    setUser(response.data);
-  } catch (err) {
-    console.error('Error fetching user data:', err);
-    setError(err); // Make sure to set the error state
-  } finally {
-    setLoading(false); // Make sure to set loading to false
-  }
-};
-        
+    };
 
     fetchUserData();
     checkUserStatus();
   }, []);
 
-  const handleNextStep = () => {
-    if (currentStep < 4) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      // Mark onboarding as complete
-      axios.post('http://localhost:8000/api/complete-onboarding/', {}, {
+
+  const fetchTasks = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/tasks/', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access_token')}`
         }
       });
-      setIsNewUser(false);
+      setTasks(response.data);
+    } catch (err) {
+      console.error('Error fetching tasks:', err);
     }
   };
+  
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+
+  // useEffect(() => {
+  //   const savedTasks = localStorage.getItem('clarity-tasks');
+  //   if (savedTasks) {
+  //     setTasks(JSON.parse(savedTasks));
+  //   }
+  // }, []);
+  
+  // useEffect(() => {
+  //   localStorage.setItem('clarity-tasks', JSON.stringify(tasks));
+  // }, [tasks]);
+
+  const handleAddTask = () => {
+    if (newTask.title.trim()) {
+      const taskToAdd = {
+        ...newTask,
+        id: editingTaskId || Date.now().toString(),
+        date: newTask.date || null,
+        priority: newTask.priority || 4
+      };
+  
+      setTasks(prevTasks => {
+        const updatedTasks = editingTaskId 
+          ? prevTasks.map(task => task.id === editingTaskId ? taskToAdd : task)
+          : [...prevTasks, taskToAdd];
+        
+        return updatedTasks.sort((a, b) => (a.priority || 4) - (b.priority || 4));
+      });
+
+      setNewTask({ title: '', description: '', date: '', priority: '' });
+      setEditingTaskId(null);
+      setShowTaskForm(false);
+    }
+  };
+
+  const handleDragStart = (event) => {
+    const { active } = event;
+    setActiveId(active.id);
+  };
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    
+    if (active.id !== over.id) {
+      setTasks((items) => {
+        const oldIndex = items.findIndex(item => item.id === active.id);
+        const newIndex = items.findIndex(item => item.id === over.id);
+        
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+    
+    setActiveId(null);
+  };
+
+  const handleDragCancel = () => {
+    setActiveId(null);
+  };
+
+  const activeTask = activeId ? tasks.find(task => task.id === activeId) : null;
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error loading user data: {error.message}</div>;
   if (!user) return <div>No user data found</div>;
 
+  const handleOnboardingComplete = () => {
+    setIsNewUser(false);
+  };
+
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
       <div className="w-64 bg-white border-r border-gray-200 p-6">
         {/* User Profile */}
@@ -88,425 +972,346 @@ export default function Dashboard() {
         </div>
 
         {/* Navigation */}
-        <nav className="space-y-4">
-          <div className="flex items-center text-gray-500">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <span className="ml-3">Search</span>
-          </div>
-          <div className="flex items-center text-gray-500">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span className="ml-3">Calendar</span>
-          </div>
-          <div className="flex items-center text-gray-500">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            <span className="ml-3">Tasks</span>
-          </div>
-
-          <div className="mt-12">
-            <h3 className="text-sm font-semibold text-gray-500 tracking-wider">My Projects</h3>
-            <p className="mt-2 text-gray-400 text-sm">Your projects will appear here</p>
-          </div>
-        </nav>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 p-12">
-  {isNewUser ? (
-    <div className="max-w-2xl">
-      {/* Step 1 Content */}
-      {currentStep === 1 && (
-        <>
-          <div className="mb-8">
-            <span className="text-sm text-gray-500 font-semibold">Step {currentStep} of 4</span>
-            <h1 className="text-3xl font-bold mt-2">Welcome to Clarity</h1>
-            <p className="text-gray-600 mt-2">We're excited to help you bring calm back to work and life.</p>
-          </div>
-          
-          <div className="border border-gray-200 rounded-lg p-6 bg-pink-50">
-            <h2 className="font-bold text-lg mb-8">Clarity can help you...</h2>
-            <div className="space-y-10">
-              <div className="flex items-center">
-                <svg className="w-6 h-6 text-gray-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-                <span>Organize the everyday chaos</span>
-              </div>
-              <div className="flex items-center">
-                <svg className="w-6 h-6 text-gray-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-                <span>Focus on the right things</span>
-              </div>
-              <div className="flex items-center">
-                <svg className="w-6 h-6 text-gray-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-                <span>Achieve goals and finish projects</span>
-              </div>
-            </div>
-          </div>
-          
-          <button 
-            onClick={handleNextStep}
-            className="mt-12 bg-red-500 hover:bg-red-600 text-white py-3 px-40 rounded-md font-medium transition-colors cursor-pointer"
-          >
-            Let's go
-          </button>
-        </>
-      )}
-
-      {/* Step 2 Content */}
-      {currentStep === 2 && (
-        <div className="max-w-md">
-          <div className="flex items-center mb-4">
+        {!isNewUser && (
+          <nav className="space-y-4">
             <button 
-              onClick={() => setCurrentStep(1)}
-              className="mr-2 p-1 rounded hover:bg-gray-100 py-2 px-2 cursor-pointer flex space-x-4"
+              onClick={() => setShowTaskForm(true)}
+              className="flex items-center text-left bg-red-500 hover:bg-red-600 text-white py-1 px-4 rounded-lg font-sm cursor-pointer"
             >
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-            <span onClick={() => setCurrentStep(1)} className="text-sm font-semibold hover:bg-gray-100 text-gray-500 cursor-pointer">Step 2 of 4</span>
+              <span>Add Task</span>
             </button>
-          </div>
-
-          <h1 className="text-3xl font-bold mb-2">What's your name?</h1>
-          <p className="text-gray-600 mb-6">Complete your profile now.</p>
-
-          {/* Editable Name Field */}
-          <div className="mb-6">
-            <div className="relative">
+          
+            <div className="flex items-center text-gray-500 mt-8 mb-6">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
               <input
                 type="text"
-                value={user.username}
-                onChange={(e) => {
-                  setUser({...user, username: e.target.value});
-                }}
-                className="w-full px-6 pt-10 pb-4 border border-gray-300 rounded-lg focus:border-none"
-                placeholder="Your name"
+                placeholder="Search tasks..."
+                className="ml-2 bg-transparent border-none focus:outline-none placeholder-gray-400"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ caretColor: '#ef4444' }}
               />
-              <span className="absolute left-3 top-3 text-xs text-gray-400 pointer-events-none">
-                Your name
-              </span>
             </div>
-            {/* <p className="mt-6 text-xs text-gray-500">This will be displayed on your profile</p> */}
-          </div>
 
-          {/* Photo Upload Card */}
-          <div 
-            className="border border-gray-200 rounded-lg p-4 mb-6 hover:bg-gray-50 transition-colors cursor-pointer"
-            onClick={() => document.getElementById('photo-upload').click()}
-          >
-            <div className="flex items-center">
-              <div className="bg-gray-100 p-3 rounded-lg mr-3">
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <div className='relative'>
+              <div className="flex items-center text-gray-500 mb-6 cursor-pointer"
+                onClick={() => setShowSidebarCalendar(!showSidebarCalendar)}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-              </div>
-              <div>
-                <span className="font-medium">Upload your photo </span>
-                <span className="text-gray-400">(optional)</span>
+                <span className="ml-3">Calendar</span>
+
+                {showSidebarCalendar && (
+                  <div className="absolute z-50 mt-2 left-0 bg-white border border-gray-200 rounded-lg shadow-lg p-3">
+                    <input 
+                      type="date" 
+                      onChange={(e) => {
+                        setSelectedDate(e.target.value);
+                        setShowSidebarCalendar(false);
+                      }}
+                      className="p-2 border rounded w-full"
+                      onClick={(e) => e.stopPropagation()} 
+                    />
+                  </div>
+                )}
               </div>
             </div>
-            <input 
-              type="file" 
-              id="photo-upload" 
-              className="hidden" 
-              accept="image/*"
-              onChange={(e) => {
-                if (e.target.files && e.target.files[0]) {
-                  const reader = new FileReader();
-                  reader.onload = (event) => {
-                    setUser({...user, photo: event.target.result});
-                  };
-                  reader.readAsDataURL(e.target.files[0]);
-                }
-              }}
-            />
-          </div>
-
-          <button 
-            onClick={handleNextStep}
-            className="w-full bg-red-500 hover:bg-red-600 cursor-pointer text-white py-3 px-6 rounded-lg font-medium transition-colors"
-          >
-            Continue
-          </button>
-        </div>
-      )}
-
-
-      {/* Step 3 Content */}
-      {currentStep === 3 && (
-  <div className="max-w-3xl mx-auto">
-    <div className="mb-5 flex items-start">
-    <button 
-              onClick={() => setCurrentStep(2)}
-              className="mr-2 p-1 rounded hover:bg-gray-100 py-2 px-2 cursor-pointer flex space-x-4"
+            
+            <div className="flex items-center text-gray-500 mb-6 cursor-pointer" 
+              onClick={() => {
+                setSelectedDate(null);
+                setSearchTerm('');
+              }} 
             >
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            <span onClick={() => setCurrentStep(1)} className="text-sm font-semibold hover:bg-gray-100 text-gray-500 cursor-pointer">Step 3 of 4</span>
-            </button>
-    </div>
-      <div>
-        <h1 className="text-3xl font-bold mt-2">How do you plan to use Clarity?</h1>
-        <p className="text-gray-600 mt-6 mb-7 text-sm">Select one to get started. You can always incorporate the other later.</p>
-      </div>
-
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
-      {/* For Myself Card */}
-      <div 
-        className={`border rounded-lg p-6 w-70 text-center cursor-pointer transition-all ${selectedUsage === 'myself' ? 'border-red-400 shadow-md' : 'border-gray-200 hover:shadow-md'}`}
-        onClick={() => {
-          setSelectedUsage('myself');
-          setTimeout(() => setCurrentStep(4), 800);
-        }}
-      >
-        {selectedUsage === 'myself' && (
-          <div className="flex justify-end">
-            <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-        )}
-        <div className="h-20 flex items-center justify-center">
-          <img src="/images/1st.png" alt="Personal use" className="h-full object-contain" />
-        </div>
-        <h3 className="font-bold text-lg mt-4">For Myself</h3>
-        <p className="text-gray-600 text-sm mt-2">I want to organize my personal tasks and projects.</p>
-      </div>
-
-      {/* With My Team Card */}
-      <div 
-        className={`border rounded-lg p-6 w-70 text-center cursor-pointer transition-all ${selectedUsage === 'team' ? 'border-red-400 shadow-md' : 'border-gray-200 hover:shadow-md'}`}
-        onClick={() => {
-          setSelectedUsage('team');
-          setTimeout(() => setCurrentStep(5), 800);
-        }}
-      >
-        {selectedUsage === 'team' && (
-          <div className="flex justify-end">
-            <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-        )}
-        <div className="h-20 flex items-center justify-center">
-          <img src="/images/2nd.png" alt="Team use" className="h-full object-contain" />
-        </div>
-        <h3 className="font-bold text-lg mt-4">With My Team</h3>
-        <p className="text-gray-600 text-sm mt-2">I want a simple yet powerful tool for my work team.</p>
-      </div>
-    </div>
-  </div>
-)}
-
-
-      {/* Step 4 Content */}
-      {currentStep === 4 && !teamSelected && (
-  <div className="max-w-3xl mx-auto">
-  <div className="mb-5 flex items-start">
-    <button 
-              onClick={() => setCurrentStep(3)}
-              className="mr-2 p-1 rounded hover:bg-gray-100 py-2 px-2 cursor-pointer flex space-x-4"
-            >
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            <span onClick={() => setCurrentStep(1)} className="text-sm font-semibold hover:bg-gray-100 text-gray-500 cursor-pointer">Step 4 of 4</span>
-            </button>
-    </div>
-      <div>
-        <h1 className="text-3xl font-bold mt-2 ml-3">How do you currently manage tasks?</h1>
-        <p className="text-gray-600 mt-4 mb-7 text-sm ml-3">Pick the option that you use the most.
-</p>
-      </div>
-
-      <div className="space-y-4">
-      {['A', 'B', 'C', 'D'].map((option, index) => (
-        <div 
-          key={option}
-          className={`flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${selectedTaskMethod === option ? 'border-red-400' : 'border-gray-200'}`}
-          onClick={() => {
-            setSelectedTaskMethod(option);
-            setTimeout(() => setCurrentStep(5), 800); // Goes to calendar selection
-          }}
-        >
-          <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-4">
-            {option}
-          </div>
-          <div className={`${selectedTaskMethod === option ? 'font-semibold' : ''}`}>
-            {[
-              "I write them on paper or on a digital note",
-              "I use a different task management app",
-              "I create events in my digital calendar",
-              "I try to remember them"
-            ][index]}
-          </div>
-          
-          {selectedTaskMethod === option && (
-            <div className="ml-auto text-red-500">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
+              <span className="ml-3">Tasks</span>
+            </div>
+
+            <div className="mt-12 border-t border-gray-300 py-6">
+              <h3 className="text-sm font-semibold text-gray-500 tracking-wider">My Projects</h3>
+              <div className="mt-4 space-y-2 max-h-60 overflow-y-auto">
+                {tasks.slice(0, 5).map(task => (
+                  <div 
+                    key={task.id} 
+                    className="flex items-center p-2 hover:bg-gray-100 rounded cursor-pointer"
+                    onClick={() => {
+                      setSelectedDate(null);
+                      setSearchTerm(task.title);
+                    }}
+                  >
+                    <div className={`w-3 h-3 rounded-full mr-2 ${
+                      task.priority === 1 ? 'bg-red-500' :
+                      task.priority === 2 ? 'bg-orange-500' :
+                      task.priority === 3 ? 'bg-blue-500' : 'bg-gray-500'
+                    }`}></div>
+                    <span className="text-sm truncate">{task.title}</span>
+                  </div>
+                ))}
+                {tasks.length === 0 && (
+                  <p className="text-gray-400 text-sm">No tasks yet. Add one to get started!</p>
+                )}
+                {tasks.length > 5 && (
+                  <p className="text-gray-400 text-sm">+ {tasks.length - 5} more tasks</p>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-auto pt-6 border-t border-gray-200">
+              <button 
+                onClick={() => setShowLogoutConfirm(true)}
+                className="flex items-center text-gray-500 hover:text-red-500 w-full"
+              >
+                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span className='cursor-pointer'>Logout</span>
+              </button>
+            </div>
+          </nav>
+        )}
+      </div>
+
+      {/* Main Content */}
+      {isNewUser ? (
+        <OnboardingSteps 
+          user={user} 
+          setUser={setUser} 
+          onComplete={handleOnboardingComplete}
+        />
+      ) : (
+        <div>
+          {showTaskForm ? (
+            <div className="max-w-2xl mt-10 ml-10 w-200 bg-white p-6 rounded-lg shadow-md">
+              <input
+                type="text"
+                placeholder="My Language Lesson"
+                className="border-gray-200 focus:outline-none focus:border-red-500 text-md"
+                value={newTask.title}
+                onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+              />
+              <input
+                type="text"
+                placeholder="Description"
+                className="w-full border-gray-200 text-xs focus:outline-none focus:border-red-500 mt-4"
+                value={newTask.description}
+                onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+              />
+              
+              <div className="flex items-center mt-4">
+                <div className="relative">
+                  <button 
+                    className="flex items-center text-gray-600 cursor-pointer"
+                    onClick={() => setShowCalendar(!showCalendar)}
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>{newTask.date || 'Date'}</span>
+                  </button>
+                  {showCalendar && (
+                    <div className="absolute z-10 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
+                      <input 
+                        type="date" 
+                        onChange={(e) => handleDateSelect(e.target.value)}
+                        className="p-2 border rounded"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="relative ml-6">
+                  <button 
+                    className="flex items-center text-gray-600 cursor-pointer"
+                    onClick={() => setShowPriorityDropdown(!showPriorityDropdown)}
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                    </svg>
+                    <span>{newTask.priority ? `Priority ${newTask.priority}` : 'Priority'}</span>
+                  </button>
+                  {showPriorityDropdown && (
+                    <div className="absolute z-10 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 w-40">
+                      {priorities.map((p) => (
+                        <div 
+                          key={p.level}
+                          className="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => {
+                            setNewTask({ ...newTask, priority: p.level });
+                            setShowPriorityDropdown(false);
+                          }}
+                        >
+                          <div className={`w-4 h-4 rounded-full mr-2 bg-${p.color}-500`}></div>
+                          <span>Priority {p.level}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 my-4"></div>
+
+              <div className="flex justify-end space-x-4">
+                <button 
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 cursor-pointer"
+                  onClick={() => setShowTaskForm(false)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className={`px-4 cursor-pointer rounded-lg ${newTask.title ? 'bg-red-500 hover:bg-red-600' : 'bg-red-300'} text-white`}
+                  disabled={!newTask.title}
+                  onClick={handleAddTask}
+                >
+                  {editingTaskId ? 'Update Task' : 'Add Task'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="max-w-2xl">
+              {selectedDate && (
+                <div className="ml-10 mt-10 mb-6 flex items-center">
+                  <h2 className="text-xl font-semibold">
+                    Tasks for {new Date(selectedDate).toLocaleDateString('en-US', { 
+                      weekday: 'long', 
+                      month: 'long', 
+                      day: 'numeric', 
+                      year: 'numeric' 
+                    })}
+                  </h2>
+                  <button 
+                    onClick={() => setSelectedDate(null)}
+                    className="ml-4 text-gray-500 hover:text-gray-700"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+
+              {filteredTasks.length > 0 ? (
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
+                  onDragCancel={handleDragCancel}
+                >
+                  <div className="min-h-screen bg-gray-50">
+                    <SortableContext 
+                      items={getTasksForSelectedDate(filteredTasks, selectedDate)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {getTasksForSelectedDate(filteredTasks, selectedDate).length > 0 ? (
+                        <div className="space-y-4 mt-10 ml-10 w-160">
+                          {getTasksForSelectedDate(filteredTasks, selectedDate).map((task) => (
+                            <SortableItem 
+                              key={task.id}
+                              id={task.id}
+                              task={task}
+                              onEdit={(taskToEdit) => {
+                                setNewTask(taskToEdit);
+                                setEditingTaskId(taskToEdit.id);
+                                setShowTaskForm(true);
+                              }}
+                              onDelete={handleDeleteTask}
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="ml-10 mt-10 text-center">
+                          <p className="text-gray-500">No tasks found for this date</p>
+                          <button
+                            onClick={() => setShowTaskForm(true)}
+                            className="mt-4 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg cursor-pointer"
+                          >
+                            Add Task for This Date
+                          </button>
+                        </div>
+                      )}
+                    </SortableContext>
+                  </div>
+
+                  <DragOverlay dropAnimation={dropAnimationConfig}>
+                    {activeTask ? (
+                      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 shadow-lg opacity-80">
+                        <div className="flex justify-between items-start px-12">
+                          <div className="flex-1">
+                            <h3 className="font-medium">{activeTask.title}</h3>
+                            {activeTask.description && <p className="text-gray-600 text-sm mt-1">{activeTask.description}</p>}
+                            {activeTask.date && <p className="text-gray-500 text-xs mt-2">{activeTask.date}</p>}
+                          </div>
+                          <button className="text-gray-400 hover:text-gray-600">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    ) : null}
+                  </DragOverlay>
+
+                  
+                </DndContext>
+              ) : (
+                <div className="text-center mt-20">
+                  {searchTerm ? (
+                    <div className='ml-20'>
+                      <h1 className="text-3xl font-bold mb-4">No tasks found</h1>
+                      <p className="text-gray-600 mb-8">No tasks match your search for "{searchTerm}"</p>
+                    </div>
+                  ) : (
+                    <div className='mx-auto ml-20'>
+                      <h1 className="text-3xl font-bold mb-4">Capture now, plan later</h1>
+                      <p className="text-gray-600 mb-8">Inbox is your go-to spot for quick task entry. Clear your mind now, organize when you're ready.</p>
+                    </div>
+                  )}
+                  <button 
+                    onClick={() => setShowTaskForm(true)}
+                    className="ml-20 bg-red-500 hover:bg-red-600 text-white py-3 px-8 rounded-lg font-medium cursor-pointer"
+                  >
+                    Add Task
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
-      ))}
-    </div>
-  </div>
-  )}
+      )}
 
-
-
-
-    {/* // Step 5 Content (Calendar selection - same for both paths) */}
-    {currentStep === 5 && (
-  <div className="max-w-3xl mx-auto">
-    {/* Header with back button */}
-    <div className="mb-8 flex items-start">
-      <button 
-        onClick={() => {
-          if (selectedUsage === 'team') {
-            // If came from "With My Team", go back to Step 3
-            setCurrentStep(3);
-          } else {
-            // Otherwise go back to Step 4 (task management)
-            setCurrentStep(4);
-          }
-        }}
-        className="mr-4 p-1 rounded-full cursor-pointer hover:bg-gray-100 mt-1"
-      >
-        <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
-      <div>
-        <h1 className="text-3xl font-bold mt-2">How do you manage events?</h1>
-        <p className="text-gray-600 mt-2">See your tasks and events side-by-side to get the full picture.</p>
-      </div>
-    </div>
-
-    {/* Calendar options */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      {/* Google Calendar Card */}
-      <div 
-        className={`border rounded-lg p-6 text-center cursor-pointer transition-all ${
-          selectedCalendar === 'google' 
-            ? 'border-red-400 shadow-md' 
-            : 'border-gray-200 hover:shadow-md'
-        }`}
-        onClick={() => {
-  setSelectedCalendar('google'); // or 'outlook'
-  setTimeout(() => {
-    setIsNewUser(false);
-    navigate('/dashboard');
-  }, 800);
-}}
-      >
-        {selectedCalendar === 'google' && (
-          <div className="flex justify-end">
-            <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+            <h3 className="text-lg font-medium mb-4">Are you sure you want to logout?</h3>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  localStorage.removeItem('access_token');
+                  navigate('/login');
+                }}
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 cursor-pointer"
+              >
+                Logout
+              </button>
+            </div>
           </div>
-        )}
-        <div className="h-20 flex items-center justify-center">
-          <img src="/images/google calender.png" alt="Google Calendar" className="h-full object-contain" />
         </div>
-        <h3 className="font-semibold text-md mt-4">Connect Google Calendar</h3>
-      </div>
-
-      {/* Outlook Calendar Card */}
-      <div 
-        className={`border rounded-lg p-6 text-center cursor-pointer transition-all ${
-          selectedCalendar === 'outlook' 
-            ? 'border-red-400 shadow-md' 
-            : 'border-gray-200 hover:shadow-md'
-        }`}
-        onClick={() => {
-  setSelectedCalendar('outlook'); // or 'outlook'
-  setTimeout(() => {
-    setIsNewUser(false);
-    navigate('/dashboard');
-  }, 800);
-}}
-      >
-        {selectedCalendar === 'outlook' && (
-          <div className="flex justify-end">
-            <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-        )}
-        <div className="h-20 flex items-center justify-center">
-          <img src="/images/outlook calender.png" alt="Outlook Calendar" className="h-full object-contain" />
-        </div>
-        <h3 className="font-semibold text-md mt-4">Connect Outlook Calendar</h3>
-      </div>
-    </div>
-
-    {/* Skip button */}
-    <button 
-       onClick={async () => {
-    try {
-      // Only make the API call if the endpoint exists
-      await axios.post('http://localhost:8000/api/complete-onboarding/', {}, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`
-        }
-      });
-    } catch (error) {
-      console.log('Onboarding completion not required or endpoint not available');
-    } finally {
-      setIsNewUser(false);
-      navigate('/dashboard');
-    }
-      }}
-      className="w-full max-w-xs mx-auto bg-gray-200 cursor-pointer hover:bg-gray-300 text-gray-800 py-3 px-6 rounded-lg font-medium transition-colors"
-    >
-      Skip
-    </button>
-  </div>
-)}
-    </div>
-  ) : (
-    <div>
-      <h1 className="text-2xl font-bold">Your Dashboard</h1>
-    </div>
-  )}
-</div>
+      )}
     </div>
   );
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
