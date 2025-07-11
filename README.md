@@ -4,7 +4,7 @@
 
 Clarity is a modern task management application designed to help users organize their daily tasks with features like priority management, drag-and-drop sorting, and calendar integration. This application provides a clean, intuitive interface for managing personal productivity.
 
-![Clarity Screenshot]  (/images/hero img.avif) 
+![Clarity Screenshot]  (frontend/public/images/screenshot.png) 
 
 ## Features
 
