@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL;
+// const API_URL = process.env.REACT_APP_API_URL;
 // const API_BASE_URL = "https://task-manager-1-2nko.onrender.com/api";
+
+const API_URL = "https://task-manager-1-2nko.onrender.com";
+
+
 
 document.title = "Sign Up – Clarity";
 
@@ -30,7 +34,8 @@ export default function Register() {
       }, {
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        timeout: 10000
       });
 
       // 2. Store tokens
