@@ -154,7 +154,7 @@ export default function Dashboard() {
 
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/user/', {
+        const response = await axios.get(`${API_URL}/api/user/`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access_token')}`
           }
@@ -175,7 +175,7 @@ export default function Dashboard() {
 
   const fetchTasks = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/tasks/', {
+      const response = await axios.get(`${API_URL}/api/tasks/`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access_token')}`
         }
