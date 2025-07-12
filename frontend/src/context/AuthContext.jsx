@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE_URL } from './config';
 
 export const AuthContext = createContext();
 
@@ -13,6 +14,7 @@ export const AuthProvider = ({ children }) => {
   // Set default axios headers if token exists
   useEffect(() => {
     if (accessToken) {
+      axios.defaults.baseURL = API_BASE_URL;  // Set base URL once
       axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
       // Optionally fetch user data here
       fetchUserData();
@@ -24,7 +26,7 @@ export const AuthProvider = ({ children }) => {
   // Fetch user data (example)
   const fetchUserData = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/user/');
+      const response = await axios.get(`${API_BASE_URL}/user/`);
       setUser(response.data);
     } catch (error) {
       console.error('Failed to fetch user data:', error);
@@ -34,7 +36,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post('http://localhost:8000/api/login/', {
+      const response = await axios.post(`${API_BASE_URL}/login/`, {
         email,
         password,
       });
@@ -53,7 +55,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (username, email, password) => {
     try {
-      await axios.post('http://localhost:8000/api/register/', {
+      await axios.post(`${API_BASE_URL}/register/`, {
         username,
         email,
         password,
@@ -78,7 +80,7 @@ export const AuthProvider = ({ children }) => {
   // Add token refresh logic
   const refreshAccessToken = async () => {
     try {
-      const response = await axios.post('http://localhost:8000/api/token/refresh/', {
+      const response = await axios.post(`${API_BASE_URL}/token/refresh/`, {
         refresh: refreshToken,
       });
       const { access } = response.data;
