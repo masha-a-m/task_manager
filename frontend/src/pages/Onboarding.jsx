@@ -20,6 +20,7 @@ export default function OnboardingSteps() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  
   // 🔁 Fetch user data on load
   useEffect(() => {
     const fetchUser = async () => {
