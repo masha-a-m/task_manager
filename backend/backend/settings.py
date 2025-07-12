@@ -28,7 +28,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
     '.onrender.com',  # allows all subdomains of onrender.com
-    'clarity-backend.onrender.com',  # specific domain
+    'https://task-manager-1-2nko.onrender.com',  # specific domain
     'clarity-rust.vercel.app',  # your frontend domain
 ]
 
@@ -150,7 +150,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = [
-     "https://clarity-backend.onrender.com",
     "https://clarity-rust.vercel.app",
 ]
 

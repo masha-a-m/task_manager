@@ -1,7 +1,7 @@
 // services/auth.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api/';
+const API_URL = "https://task-manager-1-2nko.onrender.com" || "http://localhost:8000";
 
 export const register = (username, email, password) => {
   return axios.post(API_URL + 'register/', {

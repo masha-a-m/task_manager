@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+const API_URL = "https://task-manager-1-2nko.onrender.com ";
 
 document.title = "Sign Up – Clarity";
 
@@ -19,57 +20,52 @@ export default function Register() {
     setIsLoading(true);
     setError(null);
 
-  
     try {
-    // 1. Register the user
-    const response = await axios.post('http://localhost:8000/api/register/', {
-      username,
-      email,
-      password
-    }, {
-      headers: {
-        'Content-Type': 'application/json'
+      // 1. Register the user
+      const response = await axios.post(`${API_URL}/api/register/`, {
+        username,
+        email,
+        password
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // 2. Store tokens
+      const { access, refresh } = response.data;
+      localStorage.setItem('access_token', access);
+      localStorage.setItem('refresh_token', refresh);
+
+      // 3. Set default Authorization header
+      axios.defaults.headers.common['Authorization'] = `Bearer ${access}`;
+
+      // 4. Redirect to onboarding
+      navigate('/onboarding', {
+        state: {
+          isNewUser: true,
+          currentStep: 1
+        }
+      });
+    } catch (err) {
+      console.error('Registration failed:', err.response?.data || err.message);
+
+      if (err.response && err.response.data) {
+        if (err.response.data.email) {
+          alert(`Email error: ${err.response.data.email.join(' ')}`);
+        } else if (err.response.data.password) {
+          alert(`Password error: ${err.response.data.password.join(' ')}`);
+        } else if (err.response.data.username) {
+          alert(`Username error: ${err.response.data.username.join(' ')}`);
+        } else {
+          alert('Registration failed. Please try again.');
+        }
+      } else {
+        alert('Network error. Check connection and try again.');
       }
-    });
-
-    // console.log('User created:', registerResponse.data);
-
-   
-    // 3. Store the tokens
-    const { access, refresh } = response.data;
-    localStorage.setItem('access_token', access);
-    localStorage.setItem('refresh_token', refresh);
-    
-    // 4. Set default Authorization header for all future requests
-    axios.defaults.headers.common['Authorization'] = `Bearer ${access}`;
-
-    
-
-    // 5. Only now redirect to dashboard
-    navigate('/onboarding', {
-      state: { 
-          isNewUser: true,  // This will trigger onboarding
-          currentStep: 1    // Start from step 1
-        } 
-    });
-  } catch (err) {
-    console.error('Registration failed:', err.response?.data || err.message);
-
-    if (err.response && err.response.data) {
-      console.table(err.response.data);
-      // Display specific error messages to user
-      if (err.response.data.email) {
-        alert(`Email error: ${err.response.data.email.join(' ')}`);
-      }
-      if (err.response.data.password) {
-        alert(`Password error: ${err.response.data.password.join(' ')}`);
-      }
-    } else {
-      alert('Registration failed. Please try again.');
+    } finally {
+      setIsLoading(false); // Stop loading whether success or fail
     }
-  } finally {
-    setIsLoading(false); // Stop loading whether success or fail
-  }
   };
 
   return (
@@ -136,54 +132,63 @@ export default function Register() {
 
           {/* Sign Up Button */}
           <button
-            type="submit" disabled={isLoading}
-            className={`w-full text-white px-4 py-2 rounded font-semibold cursor-pointer transition 
-            ${isLoading 
-            ? 'opacity-50 cursor-not-allowed bg-red-800'
-            : 'bg-red-500 hover:bg-red-700'
-            } flex items-center justify-center
-            `}
+            type="submit"
+            disabled={isLoading}
+            className={`w-full text-white px-4 py-2 rounded font-semibold cursor-pointer transition ${
+              isLoading
+                ? 'opacity-50 cursor-not-allowed bg-red-800'
+                : 'bg-red-500 hover:bg-red-700'
+            } flex items-center justify-center`}
           >
-              {isLoading ? (
-        <>
-          <span>Signing Up...</span>
-          <svg 
-            className="animate-spin ml-2 h-5 w-5 text-white" 
-            xmlns="http://www.w3.org/2000/svg" 
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle 
-              className="opacity-25" 
-              cx="12" 
-              cy="12" 
-              r="10" 
-              stroke="currentColor" 
-              strokeWidth="4"
-            ></circle>
-            <path 
-              className="opacity-75" 
-              fill="currentColor" 
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-        </>
-      ) : (
-            'Sign Up with Email'
-      )}
+            {isLoading ? (
+              <>
+                <span>Signing Up...</span>
+                <svg
+                  className="animate-spin ml-2 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              </>
+            ) : (
+              'Sign Up with Email'
+            )}
           </button>
 
           {/* Social Buttons */}
           <div className="space-y-4">
-            <button className="flex items-center justify-center w-full border border-gray-300 rounded py-2 hover:bg-gray-100 transition px-4 cursor-pointer">
+            <button
+              type="button"
+              className="flex items-center justify-center w-full border border-gray-300 rounded py-2 hover:bg-gray-100 transition px-4 cursor-pointer"
+            >
               <span>🌐</span>
               <span className="ml-2">Continue with Google</span>
             </button>
-            <button className="flex items-center justify-center w-full border border-gray-300 rounded py-2 hover:bg-gray-100 transition px-4 cursor-pointer">
+            <button
+              type="button"
+              className="flex items-center justify-center w-full border border-gray-300 rounded py-2 hover:bg-gray-100 transition px-4 cursor-pointer"
+            >
               <span>📘</span>
               <span className="ml-2">Continue with Facebook</span>
             </button>
-            <button className="flex items-center justify-center w-full border border-gray-300 rounded py-2 hover:bg-gray-100 transition px-4 cursor-pointer">
+            <button
+              type="button"
+              className="flex items-center justify-center w-full border border-gray-300 rounded py-2 hover:bg-gray-100 transition px-4 cursor-pointer"
+            >
               <span>🍎</span>
               <span className="ml-2">Continue with Apple</span>
             </button>
@@ -200,9 +205,16 @@ export default function Register() {
           {/* Agreement Text */}
           <p className="text-xs text-gray-500 text-center mt-4">
             By continuing with Google, Apple, or Email, you agree to Clarity’s{' '}
-            <a href="/terms" className="text-red-600 underline hover:text-red-800">Terms of Service</a>{' '}
+            <a href="/terms" className="text-red-600 underline hover:text-red-800">
+              Terms of Service
+            </a>{' '}
             and{' '}
-            <a href="https://www.google.com/policies/terms/ " target="_blank" rel="noopener noreferrer" className="text-red-600 underline hover:text-red-800">
+            <a
+              href="https://www.google.com/policies/terms/ "
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-red-600 underline hover:text-red-800"
+            >
               Privacy Policy
             </a>.
           </p>
@@ -220,9 +232,10 @@ export default function Register() {
       {/* Right Side – Video Placeholder & Testimonial */}
       <div className="w-full md:w-1/2 bg-gray-100 p-8 flex flex-col justify-center relative">
         {/* Video Placeholder */}
-        <div className=" h-48 md:h-64 lg:h-80 w-full max-w-lg mx-auto flex items-center justify-center text-white text-lg">
+        <div className="h-48 md:h-64 lg:h-80 w-full max-w-lg mx-auto flex items-center justify-center text-white text-lg">
           <video className="w-full h-full object-cover" controls>
-            <source src="/images/video.mp4"></source>
+            <source src="/images/video.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
           </video>
         </div>
 

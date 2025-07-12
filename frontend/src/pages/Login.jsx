@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+// Import API URL (centralized or env-based)
+const API_URL = "https://task-manager-1-2nko.onrender.com "; // ✅ Replace with .env if needed
+
 document.title = "Log in to Clarity";
 
 export default function Login() {
@@ -16,9 +19,9 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
-  
+
     try {
-      const res = await axios.post('http://localhost:8000/api/login/', {
+      const res = await axios.post(`${API_URL}/api/login/`, {
         email,
         password
       }, {
@@ -26,20 +29,20 @@ export default function Login() {
           'Content-Type': 'application/json'
         }
       });
-  
+
       console.log('Logged in:', res.data);
-      
+
       // Store tokens
       localStorage.setItem('access_token', res.data.access);
       localStorage.setItem('refresh_token', res.data.refresh);
-      
+
       // Set default auth header
       axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.access}`;
-      
+
       navigate('/dashboard');
     } catch (err) {
       console.error('Login failed:', err.response?.data || err.message);
-      
+
       // Improved error display
       if (err.response?.data) {
         if (err.response.data.email) {
@@ -50,6 +53,8 @@ export default function Login() {
           alert('Login failed. Check console for details.');
         }
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -59,7 +64,7 @@ export default function Login() {
       <div className="w-full md:w-1/2 p-8 md:px-30 bg-white flex flex-col justify-center">
         {/* Logo & Title */}
         <div className="flex items-center mb-10">
-          <div className="w-8 h-8  rounded flex items-center justify-center text-white">📝</div>
+          <div className="w-8 h-8 rounded flex items-center justify-center text-white">📝</div>
           <h1 className="text-xl font-bold ml-2">Clarity</h1>
         </div>
 
@@ -104,13 +109,13 @@ export default function Login() {
 
           {/* Login Button */}
           <button
-            type="submit" disabled={isLoading}
-            className={`w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded font-semibold cursor-pointer transition"
-          ${isLoading
+            type="submit"
+            disabled={isLoading}
+            className={`w-full text-white py-2 rounded font-semibold cursor-pointer transition ${
+              isLoading
                 ? 'opacity-50 cursor-not-allowed bg-red-800'
-                : 'bg-red-500 hover:bg-red-700'
-              } flex items-center justify-center
-            `}
+                : 'bg-red-500 hover:bg-red-600'
+            } flex items-center justify-center`}
           >
             {isLoading ? (
               <>
@@ -138,7 +143,7 @@ export default function Login() {
               </>
             ) : (
               'Log in'
-          )}
+            )}
           </button>
 
           {/* Forgot password? */}
@@ -149,24 +154,40 @@ export default function Login() {
           {/* Agreement Text */}
           <p className="text-xs text-gray-500 mt-4">
             By continuing with Google, Apple, or Email, you agree to Clarity’s{' '}
-            <a href="/terms" className="text-red-600 underline hover:text-red-800">Terms of Service</a>{' '}
+            <a href="/terms" className="text-red-600 underline hover:text-red-800">
+              Terms of Service
+            </a>{' '}
             and{' '}
-            <a href="https://www.google.com/policies/terms/ " target="_blank" rel="noopener noreferrer" className="text-red-600 underline hover:text-red-800">
+            <a
+              href="https://www.google.com/policies/terms/ "
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-red-600 underline hover:text-red-800"
+            >
               Privacy Policy
             </a>.
           </p>
 
           {/* Social Buttons */}
           <div className="space-y-4">
-            <button className="flex items-center justify-center w-full border border-gray-300 rounded py-2 hover:bg-gray-100 transition px-4 cursor-pointer">
+            <button
+              type="button"
+              className="flex items-center justify-center w-full border border-gray-300 rounded py-2 hover:bg-gray-100 transition px-4 cursor-pointer"
+            >
               <span>🌐</span>
               <span className="ml-2">Continue with Google</span>
             </button>
-            <button className="flex items-center justify-center w-full border border-gray-300 rounded py-2 hover:bg-gray-100 transition px-4 cursor-pointer">
+            <button
+              type="button"
+              className="flex items-center justify-center w-full border border-gray-300 rounded py-2 hover:bg-gray-100 transition px-4 cursor-pointer"
+            >
               <span>📘</span>
               <span className="ml-2">Continue with Facebook</span>
             </button>
-            <button className="flex items-center justify-center w-full border border-gray-300 rounded py-2 hover:bg-gray-100 transition px-4 cursor-pointer">
+            <button
+              type="button"
+              className="flex items-center justify-center w-full border border-gray-300 rounded py-2 hover:bg-gray-100 transition px-4 cursor-pointer"
+            >
               <span>🍎</span>
               <span className="ml-2">Continue with Apple</span>
             </button>
@@ -194,7 +215,7 @@ export default function Login() {
       <div className="w-full md:w-1/2 p-8 flex flex-col justify-center relative">
         {/* Image Placeholder */}
         <div className="h-48 md:h-64 lg:h-80 w-full max-w-lg mx-auto rounded shadow-md flex items-center justify-center text-white text-lg">
-          <img src="/images/login.png" alt="Placeholder" className="w-full h-full object-cover rounded" />
+          <img src="/images/login.png" alt="Login Illustration" className="w-full h-full object-cover rounded" />
         </div>
       </div>
     </div>

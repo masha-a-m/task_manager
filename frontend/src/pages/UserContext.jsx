@@ -2,6 +2,8 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
+const API_URL = "https://task-manager-1-2nko.onrender.com "; // ✅ Live backend URL
+
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
@@ -10,7 +12,7 @@ export const UserProvider = ({ children }) => {
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/user/', {
+      const response = await axios.get(`${API_URL}/api/user/`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access_token')}`
         }
@@ -34,7 +36,7 @@ export const UserProvider = ({ children }) => {
   const updateUser = async (updatedData) => {
     try {
       const response = await axios.patch(
-        'http://localhost:8000/api/user/',
+        `${API_URL}/api/user/`,
         updatedData,
         {
           headers: {
