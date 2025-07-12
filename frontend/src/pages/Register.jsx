@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const API_URL = "https://task-manager-1-2nko.onrender.com";
+const API_URL = process.env.REACT_APP_API_URL;
 
 document.title = "Sign Up – Clarity";
 
