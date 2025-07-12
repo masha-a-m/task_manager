@@ -170,7 +170,10 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = [
+    "https://clarity-dashboard-9u3e1axcn-maryam-garbas-projects.vercel.app/",
+    "http://localhost:3000",
+]
 
 from datetime import timedelta
 
