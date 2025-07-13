@@ -15,56 +15,97 @@ export default function Login() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-const handleLogin = async (e) => {
-  e.preventDefault();
-  setIsLoading(true);
-  setError('');
-
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    navigate('/dashboard');
-  } catch (error) {
-    console.error('Login error:', error);
-    
-    // Handle specific error cases
-    switch(error.code) {
-      case 'auth/invalid-email':
-        setError('Please enter a valid email address');
-        break;
-      case 'auth/user-disabled':
-        setError('This account has been disabled');
-        break;
-      case 'auth/user-not-found':
-        setError('No account found with this email');
-        break;
-      case 'auth/wrong-password':
-        setError('Incorrect password');
-        break;
-      case 'auth/too-many-requests':
-        setError('Too many attempts. Try again later');
-        break;
-      case 'auth/network-request-failed':
-        setError('Network error. Please check your connection');
-        break;
-      default:
-        setError('Login failed. Please try again');
+  const validateForm = () => {
+    if (!email) {
+      setError('Email is required');
+      return false;
     }
-  } finally {
-    setIsLoading(false);
-  }
-};
+    if (!password) {
+      setError('Password is required');
+      return false;
+    }
+    if (!email.includes('@')) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+    return true;
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
+    
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      // Check if email is verified (optional)
+      if (!user.emailVerified) {
+        // Optionally send verification email or show warning
+        console.warn('Email not verified');
+      }
+      
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Login error:', error);
+      
+      // Improved error handling
+      let errorMessage = 'Login failed. Please try again.';
+      
+      switch(error.code) {
+        case 'auth/invalid-email':
+          errorMessage = 'Invalid email address format';
+          break;
+        case 'auth/user-disabled':
+          errorMessage = 'This account has been disabled';
+          break;
+        case 'auth/user-not-found':
+          errorMessage = 'No account found with this email';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Incorrect password';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Too many attempts. Account temporarily locked. Try again later or reset your password';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Network error. Please check your internet connection';
+          break;
+        default:
+          // Handle case where error might be in different format
+          if (error.non_field_errors) {
+            errorMessage = error.non_field_errors[0];
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+      }
+      
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleGoogleLogin = async () => {
     try {
+      setIsLoading(true);
+      setError('');
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       navigate('/dashboard');
     } catch (error) {
       console.error('Google login error:', error);
-      setError('Failed to login with Google');
+      setError(error.message || 'Failed to login with Google');
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // Render the component...
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
       {/* Left Side - Login Form */}
@@ -83,7 +124,7 @@ const handleLogin = async (e) => {
 
           {/* Error Message */}
           {error && (
-            <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm">
+            <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
               {error}
             </div>
           )}
@@ -128,6 +169,7 @@ const handleLogin = async (e) => {
                 placeholder="••••••••"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 required
+                minLength="6"
               />
             </div>
 
@@ -144,16 +186,16 @@ const handleLogin = async (e) => {
               disabled={isLoading}
               className={`w-full py-3 px-4 rounded-lg font-medium text-white ${
                 isLoading ? 'bg-red-400 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'
-              } transition-colors`}
+              } transition-colors flex items-center justify-center`}
             >
               {isLoading ? (
-                <span className="flex items-center justify-center">
+                <>
                   <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                   Logging in...
-                </span>
+                </>
               ) : (
                 'Log in'
               )}
@@ -161,12 +203,12 @@ const handleLogin = async (e) => {
           </form>
 
           {/* Divider */}
-          <div className="relative">
+          <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300"></div>
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            <div className="relative flex justify-center">
+              <span className="px-2 bg-white text-sm text-gray-500">Or continue with</span>
             </div>
           </div>
 
@@ -175,26 +217,29 @@ const handleLogin = async (e) => {
             <button
               type="button"
               onClick={handleGoogleLogin}
-              className="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={isLoading}
+              className="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               <FcGoogle className="text-xl" />
             </button>
             <button
               type="button"
-              className="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={isLoading}
+              className="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               <FaFacebook className="text-xl text-blue-600" />
             </button>
             <button
               type="button"
-              className="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={isLoading}
+              className="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               <FaApple className="text-xl text-gray-800" />
             </button>
           </div>
 
           {/* Sign Up Link */}
-          <p className="text-center text-sm text-gray-600">
+          <p className="text-center text-sm text-gray-600 mt-6">
             Don't have an account?{' '}
             <Link to="/register" className="font-medium text-red-600 hover:text-red-800">
               Sign up
@@ -225,7 +270,6 @@ const handleLogin = async (e) => {
     </div>
   );
 }
-
 
 
 // import React, { useState } from 'react';
