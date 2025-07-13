@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getAuth, updateProfile } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc } from 'firebase/firestore';
-import { auth, storage, db } from '../firebase';
+import { auth, storage, db } from '../../firebase';
 
 document.title = "Onboarding – Clarity";
 
