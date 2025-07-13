@@ -16,14 +16,17 @@ import dj_database_url
 from dotenv import load_dotenv
 from pathlib import Path
 
-load_dotenv(os.path.join(os.path.dirname(__file__), '../../.env')) 
-
 SECRET_KEY = os.getenv('SECRET_KEY')
   # Load environment variables
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+# Load environment variables
+env_path = os.path.join(BASE_DIR, '../env')  # Adjust path as needed
+load_dotenv(env_path)  # Will silently fail if .env not found (ok for production)
 
 
 # Quick-start development settings - unsuitable for production
