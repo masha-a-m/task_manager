@@ -119,8 +119,8 @@ export default function Login() {
             <h1 className="text-2xl font-bold text-gray-800">Clarity</h1>
           </div>
 
-          <h2 className="text-3xl font-bold text-gray-800">Welcome back</h2>
-          <p className="text-gray-600">Log in to your account to continue</p>
+          {/* <h2 className="text-3xl font-bold text-gray-800">Welcome back</h2>
+          <p className="text-gray-600">Log in to your account to continue</p> */}
 
           {/* Error Message */}
           {error && (
