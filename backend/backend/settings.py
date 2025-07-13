@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
-import dj_database_url
 from pathlib import Path
 
 
@@ -109,12 +108,7 @@ DATABASES = {
         'PORT': '3306',
     }
 } 
-# Override default DB if DATABASE_URL is set (for production)
-if 'DATABASE_URL' in os.environ:
-    DATABASES['default'] = dj_database_url.config(
-        conn_max_age=600,
-        ssl_require=True  # Required for Render PostgreSQL
-    )
+
 
 
 # backend/settings/production.py
@@ -163,17 +157,15 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-CORS_ALLOW_ALL_ORIGINS = [
-    "https://clarity-dashboard-9u3e1axcn-maryam-garbas-projects.vercel.app/",
-    "http://localhost:3000",
-]
+CORS_ALLOW_ALL_ORIGINS = True
+
 
 from datetime import timedelta
 
