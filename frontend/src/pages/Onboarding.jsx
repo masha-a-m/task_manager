@@ -406,18 +406,6 @@ useEffect(() => {
 
   return (
     <div className="max-w-2xl mx-auto px-4 md:px-20 py-10">
-        {/* Temporary debug element - remove after testing */}
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      background: 'red',
-      color: 'white',
-      padding: '10px',
-      zIndex: 9999
-    }}>
-      RENDER CHECK (If you see this, React is mounting)
-    </div>
       {/* Progress Bar */}
       <div className="w-full bg-gray-200 h-1 mb-6">
         <div 
