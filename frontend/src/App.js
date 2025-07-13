@@ -10,18 +10,13 @@ import Dashboard from './pages/Dashboard';
 import About from './pages/About';
 
 function App() {
-    console.log("✅ App component rendered"); // Check if this logs
-
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/onboarding"  element={
-          console.log("🚦 Route matched - rendering OnboardingSteps") || 
-          <OnboardingSteps />
-        }  />
+        <Route path="/onboarding" element={<OnboardingSteps />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/about" element={<About />} />
       </Routes>

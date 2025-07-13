@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getAuth, updateProfile } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc } from 'firebase/firestore';
-import { auth, storage, db } from '../../firebase';
+import { auth, storage, db } from '../firebase';
 
 document.title = "Onboarding – Clarity";
 
@@ -22,30 +22,21 @@ export default function OnboardingSteps() {
   const navigate = useNavigate();
 
   // Initialize user data
-useEffect(() => {
-  console.log("Checking auth state..."); // Debug log
-  const unsubscribe = auth.onAuthStateChanged((user) => {
-    console.log("Auth state changed:", user); // Debug log
-    if (user) {
-      setUser({
-        username: user.displayName || '',
-        email: user.email || '',
-        photoURL: user.photoURL || null
-      });
-      setLoading(false);
-    } else {
-      console.log("No user, redirecting to login"); // Debug log
-      navigate('/login');
-    }
-  }, (error) => {
-    console.error("Auth error:", error); // Debug log
-    setError("Authentication error");
-    setLoading(false);
-  });
-  
-  return () => unsubscribe();
-}, [navigate]);
-
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUser({
+          username: user.displayName || '',
+          email: user.email || '',
+          photoURL: user.photoURL || null
+        });
+        setLoading(false);
+      } else {
+        navigate('/login');
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
 
   // Handle profile updates
   const handleProfileUpdate = async (updates) => {
@@ -121,24 +112,6 @@ useEffect(() => {
   };
 
   // Step 1: Welcome (if needed)
-
-   const Step1 = () => (
-  <div className="max-w-md mx-auto text-center py-20">
-    <h1 className="text-3xl font-bold mb-4">Welcome to Clarity</h1>
-    <p className="text-gray-600 mb-8">Let's get you set up in just a few steps</p>
-    <button
-      onClick={() => setCurrentStep(2)}
-      className="bg-red-500 hover:bg-red-600 text-white py-3 px-6 rounded-lg font-medium"
-    >
-      Get Started
-    </button>
-  </div>
-);
-
-
-
-
-
   // Step 2: Profile Setup
   const Step2 = () => (
     <div className="max-w-md mx-auto">
@@ -393,17 +366,6 @@ useEffect(() => {
     );
   }
 
-  if (!auth) {
-  return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="text-center p-8 bg-red-50 rounded-lg">
-        <h2 className="text-2xl font-bold text-red-600">Firebase Error</h2>
-        <p>Authentication system not initialized</p>
-      </div>
-    </div>
-  );
-}
-
   return (
     <div className="max-w-2xl mx-auto px-4 md:px-20 py-10">
       {/* Progress Bar */}
@@ -415,7 +377,6 @@ useEffect(() => {
       </div>
 
       {/* Current Step */}
-      {currentStep === 1 && <Step1 />}
       {currentStep === 2 && <Step2 />}
       {currentStep === 3 && <Step3 />}
       {currentStep === 4 && <Step4 />}
