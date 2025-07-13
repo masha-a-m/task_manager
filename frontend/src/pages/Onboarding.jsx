@@ -405,12 +405,12 @@ useEffect(() => {
 }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 md:px-20 py-10">
+    <div className="mx-auto px-4 md:px-20 py-10">
       {/* Progress Bar */}
       <div className="w-full bg-gray-200 h-1 mb-6">
         <div 
           className="bg-red-500 h-1 transition-all duration-300" 
-          style={{ width: `${(currentStep-1)*25}%` }}
+          
         />
       </div>
 
