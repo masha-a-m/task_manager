@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { getMockUsers, addMockUser } from './mockAuthDB'; // Import the shared mock DB
-
-
-// Mock API configuration
-const MOCK_API = true; // Set to false to use real API
-const MOCK_DELAY = 1000; // Simulate network delay in ms
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from './firebase';
 
 document.title = "Sign Up – Clarity";
 
@@ -19,85 +14,6 @@ export default function Register() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  
-// Mock API function
-const mockRegister = async (userData) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      // Validate username
-      if (userData.username.length < 3) {
-        reject({
-          response: {
-            data: {
-              username: ["Username must be at least 3 characters long."]
-            }
-          }
-        });
-        return;
-      }
-
-      // Validate email format
-      if (!userData.email.includes('@')) {
-        reject({
-          response: {
-            data: {
-              email: ["Enter a valid email address."]
-            }
-          }
-        });
-        return;
-      }
-
-      // Validate password length
-      if (userData.password.length < 6) {
-        reject({
-          response: {
-            data: {
-              password: ["Password must be at least 6 characters long."]
-            }
-          }
-        });
-        return;
-      }
-
-      // Check if email already exists
-      const existingUser = getMockUsers().find(user => user.email === userData.email);
-      if (existingUser) {
-        reject({
-          response: {
-            data: {
-              email: ["This email is already registered."]
-            }
-          }
-        });
-        return;
-      }
-
-      // Create new user object
-      const newUser = {
-        email: userData.email,
-        password: userData.password,
-        username: userData.username
-      };
-
-      // Add to mock database
-      addMockUser(newUser);
-
-      // Simulate successful response with user data
-      resolve({
-        data: {
-          access: "mock-access-token",
-          refresh: "mock-refresh-token",
-          user: {
-            username: newUser.username,
-            email: newUser.email
-          }
-        }
-      });
-    }, MOCK_DELAY);
-  });
-};
-
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -105,36 +21,15 @@ const mockRegister = async (userData) => {
     setError(null);
 
     try {
-      let response;
+      // Create user with Firebase
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
       
-      if (MOCK_API) {
-        // Use mock API
-        response = await mockRegister({
-          username,
-          email,
-          password
-        });
-      } else {
-        // Use real API (commented out)
-        // response = await axios.post(`${API_URL}/api/register/`, {
-        //   username,
-        //   email,
-        //   password
-        // }, {
-        //   headers: {
-        //     'Content-Type': 'application/json'
-        //   },
-        //   timeout: 10000
-        // });
-      }
-
-      // Store tokens (mock or real)
-      const { access, refresh } = response.data;
-      localStorage.setItem('access_token', access);
-      localStorage.setItem('refresh_token', refresh);
-
-      // Set default Authorization header
-      axios.defaults.headers.common['Authorization'] = `Bearer ${access}`;
+      
+      // You can store additional user info (like username) in Firebase Firestore if needed
+      // Here we'll just store the access token in localStorage
+      const accessToken = await user.getIdToken();
+      localStorage.setItem('access_token', accessToken);
 
       // Redirect to onboarding
       navigate('/onboarding', {
@@ -144,25 +39,30 @@ const mockRegister = async (userData) => {
         }
       });
     } catch (err) {
-      console.error('Registration failed:', err.response?.data || err.message);
-
-      if (err.response && err.response.data) {
-        if (err.response.data.email) {
-          alert(`Email error: ${err.response.data.email.join(' ')}`);
-        } else if (err.response.data.password) {
-          alert(`Password error: ${err.response.data.password.join(' ')}`);
-        } else if (err.response.data.username) {
-          alert(`Username error: ${err.response.data.username.join(' ')}`);
-        } else {
-          alert('Registration failed. Please try again.');
-        }
-      } else {
-        alert('Network error. Check connection and try again.');
+      console.error('Registration failed:', err);
+      setError(err.message);
+      
+      // Firebase error handling
+      let errorMessage = 'Registration failed. Please try again.';
+      switch (err.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = 'This email is already registered.';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Please enter a valid email address.';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'Password should be at least 6 characters.';
+          break;
+        default:
+          errorMessage = err.message;
       }
+      alert(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
