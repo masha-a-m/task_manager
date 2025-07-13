@@ -22,21 +22,30 @@ export default function OnboardingSteps() {
   const navigate = useNavigate();
 
   // Initialize user data
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        setUser({
-          username: user.displayName || '',
-          email: user.email || '',
-          photoURL: user.photoURL || null
-        });
-        setLoading(false);
-      } else {
-        navigate('/login');
-      }
-    });
-    return () => unsubscribe();
-  }, [navigate]);
+useEffect(() => {
+  console.log("Checking auth state..."); // Debug log
+  const unsubscribe = auth.onAuthStateChanged((user) => {
+    console.log("Auth state changed:", user); // Debug log
+    if (user) {
+      setUser({
+        username: user.displayName || '',
+        email: user.email || '',
+        photoURL: user.photoURL || null
+      });
+      setLoading(false);
+    } else {
+      console.log("No user, redirecting to login"); // Debug log
+      navigate('/login');
+    }
+  }, (error) => {
+    console.error("Auth error:", error); // Debug log
+    setError("Authentication error");
+    setLoading(false);
+  });
+  
+  return () => unsubscribe();
+}, [navigate]);
+
 
   // Handle profile updates
   const handleProfileUpdate = async (updates) => {
@@ -383,6 +392,17 @@ export default function OnboardingSteps() {
       </div>
     );
   }
+
+  if (!auth) {
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <div className="text-center p-8 bg-red-50 rounded-lg">
+        <h2 className="text-2xl font-bold text-red-600">Firebase Error</h2>
+        <p>Authentication system not initialized</p>
+      </div>
+    </div>
+  );
+}
 
   return (
     <div className="max-w-2xl mx-auto px-4 md:px-20 py-10">
