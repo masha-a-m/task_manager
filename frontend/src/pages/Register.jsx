@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { mockUsers } from './mockAuthDB'; // Import the shared mock DB
+import { getMockUsers, addMockUser } from './mockAuthDB'; // Import the shared mock DB
 
 
 // Mock API configuration
@@ -19,63 +19,85 @@ export default function Register() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Mock API function
-  const mockRegister = async (userData) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-
-       
-        // Simulate validation errors
-        if (userData.username.length < 3) {
-          reject({
-            response: {
-              data: {
-                username: ["Username must be at least 3 characters long."]
-              }
+  
+// Mock API function
+const mockRegister = async (userData) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      // Validate username
+      if (userData.username.length < 3) {
+        reject({
+          response: {
+            data: {
+              username: ["Username must be at least 3 characters long."]
             }
-          });
-          return;
-        }
+          }
+        });
+        return;
+      }
 
-        if (!userData.email.includes('@')) {
-          reject({
-            response: {
-              data: {
-                email: ["Enter a valid email address."]
-              }
+      // Validate email format
+      if (!userData.email.includes('@')) {
+        reject({
+          response: {
+            data: {
+              email: ["Enter a valid email address."]
             }
-          });
-          return;
-        }
+          }
+        });
+        return;
+      }
 
-        if (userData.password.length < 6) {
-          reject({
-            response: {
-              data: {
-                password: ["Password must be at least 6 characters long."]
-              }
+      // Validate password length
+      if (userData.password.length < 6) {
+        reject({
+          response: {
+            data: {
+              password: ["Password must be at least 6 characters long."]
             }
-          });
-          return;
-        }
-        // Add the new user to mock database
+          }
+        });
+        return;
+      }
+
+      // Check if email already exists
+      const existingUser = getMockUsers().find(user => user.email === userData.email);
+      if (existingUser) {
+        reject({
+          response: {
+            data: {
+              email: ["This email is already registered."]
+            }
+          }
+        });
+        return;
+      }
+
+      // Create new user object
       const newUser = {
         email: userData.email,
         password: userData.password,
         username: userData.username
       };
-      mockUsers.push(newUser);
 
-        // Simulate successful response
-        resolve({
-          data: {
-            access: "mock-access-token",
-            refresh: "mock-refresh-token"
+      // Add to mock database
+      addMockUser(newUser);
+
+      // Simulate successful response with user data
+      resolve({
+        data: {
+          access: "mock-access-token",
+          refresh: "mock-refresh-token",
+          user: {
+            username: newUser.username,
+            email: newUser.email
           }
-        });
-      }, MOCK_DELAY);
-    });
-  };
+        }
+      });
+    }, MOCK_DELAY);
+  });
+};
+
 
   const handleRegister = async (e) => {
     e.preventDefault();
