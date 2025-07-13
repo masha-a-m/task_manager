@@ -12,7 +12,14 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 import dj_database_url
+
+from dotenv import load_dotenv
 from pathlib import Path
+
+load_dotenv(os.path.join(os.path.dirname(__file__), '../../.env')) 
+
+SECRET_KEY = os.getenv('SECRET_KEY')
+  # Load environment variables
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -29,7 +36,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # DEBUG = False
 
 # SECURITY
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-for-dev-only')
+# SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-for-dev-only')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # Email settings
