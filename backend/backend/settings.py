@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import dj_database_url
 from pathlib import Path
 
 
@@ -43,6 +44,7 @@ ALLOWED_HOSTS = [
     'task-manager-1-2nko.onrender.com',  # specific domain
     'clarity-rust.vercel.app',  # your frontend domain
     'clarity-dashboard-omega.vercel.app/',
+    'clarity-dashboard-9u3e1axcn-maryam-garbas-projects.vercel.app/',
 ]
 
 # Application definition
@@ -56,6 +58,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'psycopg2',  # PostgreSQL adapter
     'corsheaders',
     'tasks',
     'rest_framework_simplejwt',
@@ -99,14 +102,19 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'task_manager_db',
-        'USER': 'root',
-        'PASSWORD': 'Integritymasha1@',
-        'HOST': 'localhost',
-        'PORT': '3306',
-    }
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=True
+    )
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'task_manager_db',
+    #     'USER': 'root',
+    #     'PASSWORD': 'Integritymasha1@',
+    #     'HOST': 'localhost',
+    #     'PORT': '3306',
+    # }
 } 
 
 
