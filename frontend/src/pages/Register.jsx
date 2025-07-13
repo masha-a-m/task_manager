@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { mockUsers } from './mockAuthDB'; // Import the shared mock DB
+
 
 // Mock API configuration
 const MOCK_API = true; // Set to false to use real API
@@ -21,6 +23,8 @@ export default function Register() {
   const mockRegister = async (userData) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
+
+       
         // Simulate validation errors
         if (userData.username.length < 3) {
           reject({
@@ -54,6 +58,13 @@ export default function Register() {
           });
           return;
         }
+        // Add the new user to mock database
+      const newUser = {
+        email: userData.email,
+        password: userData.password,
+        username: userData.username
+      };
+      mockUsers.push(newUser);
 
         // Simulate successful response
         resolve({
