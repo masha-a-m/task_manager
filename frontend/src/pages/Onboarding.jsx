@@ -112,6 +112,24 @@ export default function OnboardingSteps() {
   };
 
   // Step 1: Welcome (if needed)
+
+   const Step1 = () => (
+  <div className="max-w-md mx-auto text-center py-20">
+    <h1 className="text-3xl font-bold mb-4">Welcome to Clarity</h1>
+    <p className="text-gray-600 mb-8">Let's get you set up in just a few steps</p>
+    <button
+      onClick={() => setCurrentStep(2)}
+      className="bg-red-500 hover:bg-red-600 text-white py-3 px-6 rounded-lg font-medium"
+    >
+      Get Started
+    </button>
+  </div>
+);
+
+
+
+
+
   // Step 2: Profile Setup
   const Step2 = () => (
     <div className="max-w-md mx-auto">
@@ -377,6 +395,7 @@ export default function OnboardingSteps() {
       </div>
 
       {/* Current Step */}
+      {currentStep === 1 && <Step1 />}
       {currentStep === 2 && <Step2 />}
       {currentStep === 3 && <Step3 />}
       {currentStep === 4 && <Step4 />}
