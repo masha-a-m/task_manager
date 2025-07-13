@@ -15,36 +15,44 @@ export default function Login() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setError('');
 
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate('/dashboard');
-    } catch (error) {
-      console.error('Login error:', error);
-      switch(error.code) {
-        case 'auth/invalid-email':
-          setError('Invalid email address');
-          break;
-        case 'auth/user-disabled':
-          setError('Account disabled');
-          break;
-        case 'auth/user-not-found':
-          setError('No account found with this email');
-          break;
-        case 'auth/wrong-password':
-          setError('Incorrect password');
-          break;
-        default:
-          setError('Failed to log in. Please try again.');
-      }
-    } finally {
-      setIsLoading(false);
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    navigate('/dashboard');
+  } catch (error) {
+    console.error('Login error:', error);
+    
+    // Handle specific error cases
+    switch(error.code) {
+      case 'auth/invalid-email':
+        setError('Please enter a valid email address');
+        break;
+      case 'auth/user-disabled':
+        setError('This account has been disabled');
+        break;
+      case 'auth/user-not-found':
+        setError('No account found with this email');
+        break;
+      case 'auth/wrong-password':
+        setError('Incorrect password');
+        break;
+      case 'auth/too-many-requests':
+        setError('Too many attempts. Try again later');
+        break;
+      case 'auth/network-request-failed':
+        setError('Network error. Please check your connection');
+        break;
+      default:
+        setError('Login failed. Please try again');
     }
-  };
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleGoogleLogin = async () => {
     try {
