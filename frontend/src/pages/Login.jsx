@@ -6,6 +6,15 @@ import axios from 'axios';
 const MOCK_API = true; // Set to false to use real API
 const MOCK_DELAY = 1000; // Simulate network delay in ms
 
+// Mock user database
+let mockUsers = [
+  {
+    email: "user@example.com",
+    password: "password123",
+    username: "testuser"
+  }
+];
+
 document.title = "Log in to Clarity";
 
 export default function Login() {
@@ -43,12 +52,21 @@ export default function Login() {
           return;
         }
 
-        // Mock successful login
-        if (credentials.email === "user@example.com" && credentials.password === "password123") {
+        // Check mock user database
+        const user = mockUsers.find(u => 
+          u.email === credentials.email && 
+          u.password === credentials.password
+        );
+
+        if (user) {
           resolve({
             data: {
               access: "mock-access-token",
-              refresh: "mock-refresh-token"
+              refresh: "mock-refresh-token",
+              user: {
+                username: user.username,
+                email: user.email
+              }
             }
           });
         } else {
@@ -95,6 +113,7 @@ export default function Login() {
       // Store tokens (mock or real)
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
 
       // Set default auth header
       axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
@@ -117,7 +136,6 @@ export default function Login() {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left Side – Login Form */}
