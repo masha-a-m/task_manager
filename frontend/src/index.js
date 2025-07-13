@@ -16,11 +16,11 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import axios from 'axios'; // Import axios
 
-// // Define your API base URL
-// const API_URL = 'http://localhost:8000/api/';
+// Define your API base URL
+const API_URL = 'http://localhost:8000/api/';
 
-// // Configure Axios defaults
-// axios.defaults.baseURL = API_URL;
+// Configure Axios defaults
+axios.defaults.baseURL = API_URL;
 
 // Add request interceptor to include the token
 axios.interceptors.request.use(
