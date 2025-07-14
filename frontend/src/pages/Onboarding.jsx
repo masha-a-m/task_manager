@@ -8,7 +8,7 @@ import { auth, storage, db } from '../firebase';
 document.title = "Onboarding – Clarity";
 
 export default function OnboardingSteps() {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(2);
   const [selectedUsage, setSelectedUsage] = useState(null);
   const [selectedCalendar, setSelectedCalendar] = useState(null);
   const [selectedTaskMethod, setSelectedTaskMethod] = useState(null);
