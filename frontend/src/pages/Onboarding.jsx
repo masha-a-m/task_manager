@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,7 +13,7 @@ export default function OnboardingSteps() {
     email: '',
     photo: null
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   // 🔁 Fetch user data from localStorage on load
@@ -28,11 +27,11 @@ export default function OnboardingSteps() {
   }, []);
 
   const handleNextStep = () => {
-    if (currentStep === 2 && !user.username.trim()) {
-      alert("Please enter your name to continue.");
-      return;
+     if (currentStep < 4) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      completeOnboarding();
     }
-    setCurrentStep(prev => prev + 1);
   };
 
   const handlePreviousStep = () => {
