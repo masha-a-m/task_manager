@@ -118,7 +118,7 @@ export default function OnboardingSteps() {
       <div className="max-w-md mx-auto">
         <div className="flex items-center mb-4">
           <button 
-            onClick={handlePreviousStep}
+            onClick={() => setCurrentStep(1)}
             className="mr-2 p-1 rounded hover:bg-gray-100 py-2 px-2 cursor-pointer flex space-x-4"
           >
             <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -857,7 +857,7 @@ export default function OnboardingSteps() {
 
 
 
-  return (
+  // return (
   //     <div className="max-w-md mx-auto">
   //       <div className="flex items-center mb-4">
   //         <button
