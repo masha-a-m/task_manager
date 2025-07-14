@@ -47,8 +47,9 @@ export default function OnboardingSteps() {
   }
 
   // Step 1 Content - Welcome
-  const Step1 = () => (
-    <div className="max-w-md mx-auto">
+  const Step1 = () => {
+    return (
+        <div className="max-w-md mx-auto">
       <div className="mb-8">
         <span className="text-sm text-gray-500 font-semibold">Step 1 of 5</span>
         <h1 className="text-3xl font-bold mt-2">Welcome to Clarity</h1>
@@ -89,6 +90,9 @@ export default function OnboardingSteps() {
       </button>
     </div>
   );
+    
+  }
+    
 
   // Step 2 Content - Profile Setup
   const Step2 = () => {
@@ -187,8 +191,9 @@ export default function OnboardingSteps() {
 
 
   // Step 3 Content
-  const Step3 = () => (
-    <div className="max-w-3xl mx-auto">
+  const Step3 = () => {
+    return (
+         <div className="max-w-3xl mx-auto">
       <div className="mb-5 flex items-start">
         <button 
           onClick={() => setCurrentStep(2)}
@@ -252,7 +257,9 @@ export default function OnboardingSteps() {
       </div>
     </div>
   );
-
+}
+  
+   
   // Step 4 Content
   const Step4 = () => (
     <div className="max-w-3xl mx-auto">
