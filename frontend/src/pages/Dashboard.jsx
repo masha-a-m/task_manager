@@ -52,8 +52,8 @@ export default function Dashboard() {
   // Load user and tasks from localStorage
   useEffect(() => {
     try {
-      const currentUser = JSON.parse(localStorage.getItem('clarity_currentUser') || {};
-      const allTasks = JSON.parse(localStorage.getItem('clarity_tasks') || [];
+      const currentUser = JSON.parse(localStorage.getItem('clarity_currentUser') || '{}');
+      const allTasks = JSON.parse(localStorage.getItem('clarity_tasks') || '[]');
       
       if (currentUser.email) {
         setUser(currentUser);
