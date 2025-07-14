@@ -24,10 +24,11 @@ const OnboardingSteps = () => {
       email: currentUser.email || '',
       photo: null
     });
+    setLoading(false);
   }, []);
 
   const handleNextStep = () => {
-     if (currentStep < 4) {
+     if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
     } else {
       completeOnboarding();
@@ -225,7 +226,7 @@ const OnboardingSteps = () => {
           <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          <span className="text-sm font-semibold hover:bg-gray-100 text-gray-500 cursor-pointer">Step 3 of 4</span>
+          <span className="text-sm font-semibold hover:bg-gray-100 text-gray-500 cursor-pointer">Step 3 of 5</span>
         </button>
       </div>
       <div>
@@ -295,7 +296,7 @@ const OnboardingSteps = () => {
           <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          <span className="text-sm font-semibold hover:bg-gray-100 text-gray-500 cursor-pointer">Step 4 of 4</span>
+          <span className="text-sm font-semibold hover:bg-gray-100 text-gray-500 cursor-pointer">Step 4 of 5</span>
         </button>
       </div>
       <div>
@@ -345,11 +346,11 @@ const OnboardingSteps = () => {
           <div className="max-w-3xl mx-auto">
       <div className="mb-8 flex items-start">
         <button 
-          onClick={() => {
-            if (selectedUsage === 'team') {
-              setCurrentStep(4);
+          onClick={() => {          
+             if (selectedUsage === 'team') {
+              setCurrentStep(3); // If they came from team selection
             } else {
-              setCurrentStep(5);
+              setCurrentStep(4); // If they came from personal selection
             }
           }}
           className="mr-4 p-1 rounded-full cursor-pointer hover:bg-gray-100 mt-1"
