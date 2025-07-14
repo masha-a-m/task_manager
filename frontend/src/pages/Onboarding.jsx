@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 document.title = "Onboarding – Clarity";
 
-export default function OnboardingSteps() {
+const OnboardingSteps = () => {
   const [currentStep, setCurrentStep] = useState(1); // Start at step 1
   const [selectedUsage, setSelectedUsage] = useState(null);
   const [selectedCalendar, setSelectedCalendar] = useState(null);
@@ -430,4 +430,6 @@ export default function OnboardingSteps() {
       {currentStep === 5 && <Step5 />}
     </div>
   );
-}
+};
+
+export default OnboardingSteps;
