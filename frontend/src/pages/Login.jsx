@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FcGoogle, FaFacebook, FaApple } from 'react-icons/fa';
 
 document.title = "Log in to Clarity";
 
@@ -185,59 +184,53 @@ export default function Login() {
 
           {/* Social Login Buttons */}
           <div className="grid grid-cols-3 gap-3">
-            <button
+             <button
               type="button"
-              onClick={() => handleSocialLogin('Google')}
-              disabled={isLoading}
-              className="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="flex items-center justify-center w-full border border-gray-300 rounded py-2 hover:bg-gray-100 transition px-4 cursor-pointer"
             >
-              <FcGoogle className="text-xl" />
+              <span>🌐</span>
+              <span className="ml-2">Continue with Google</span>
             </button>
             <button
               type="button"
-              onClick={() => handleSocialLogin('Facebook')}
-              disabled={isLoading}
-              className="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="flex items-center justify-center w-full border border-gray-300 rounded py-2 hover:bg-gray-100 transition px-4 cursor-pointer"
             >
-              <FaFacebook className="text-xl text-blue-600" />
+              <span>📘</span>
+              <span className="ml-2">Continue with Facebook</span>
             </button>
             <button
               type="button"
-              onClick={() => handleSocialLogin('Apple')}
-              disabled={isLoading}
-              className="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="flex items-center justify-center w-full border border-gray-300 rounded py-2 hover:bg-gray-100 transition px-4 cursor-pointer"
             >
-              <FaApple className="text-xl text-gray-800" />
+              <span>🍎</span>
+              <span className="ml-2">Continue with Apple</span>
             </button>
           </div>
 
-          {/* Sign Up Link */}
-          <p className="text-center text-sm text-gray-600 mt-6">
+
+         {/* Divider */}
+          <div className="relative my-6">
+            <hr className="border-t border-gray-300" />
+            <span className="absolute left-1/2 top-0 transform -translate-x-1/2 -mt-3 bg-white px-2 text-sm text-gray-500">
+              or
+            </span>
+          </div>
+
+           {/* Haven't Signed Up */}
+          <p className="text-center text-sm mt-6">
             Don't have an account?{' '}
-            <Link to="/register" className="font-medium text-red-600 hover:text-red-800">
+            <Link to="/register" className="text-red-500 hover:text-red-800 font-semibold underline">
               Sign up
             </Link>
           </p>
         </div>
       </div>
 
-      {/* Right Side - Image */}
-      <div className="hidden md:block md:w-1/2 bg-gradient-to-br from-red-500 to-red-600 p-12">
-        <div className="h-full flex flex-col justify-center items-center text-white">
-          <div className="max-w-md">
-            <h2 className="text-3xl font-bold mb-4">Your productivity companion</h2>
-            <p className="text-lg mb-8">
-              Join thousands of users who manage their tasks efficiently with Clarity
-            </p>
-            <div className="grid grid-cols-3 gap-4">
-              {['Tasks', 'Projects', 'Users'].map((item) => (
-                <div key={item} className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
-                  <div className="text-2xl font-bold mb-1">100+</div>
-                  <div className="text-sm">{item}</div>
-                </div>
-              ))}
-            </div>
-          </div>
+       {/* Right Side – Image */}
+      <div className="w-full md:w-1/2 p-8 flex flex-col justify-center relative">
+        {/* Image Placeholder */}
+        <div className="h-48 md:h-64 lg:h-80 w-full max-w-lg mx-auto rounded shadow-md flex items-center justify-center text-white text-lg">
+          <img src="/images/login.png" alt="Login Illustration" className="w-full h-full object-cover rounded" />
         </div>
       </div>
     </div>
