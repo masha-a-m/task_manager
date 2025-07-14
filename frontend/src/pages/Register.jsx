@@ -19,7 +19,7 @@ export default function Register() {
 
     try {
       // Check if user already exists
-      const users = JSON.parse(localStorage.getItem('clarity_users') || {};
+      const users = JSON.parse(localStorage.getItem('clarity_users') || {});
       if (users[email]) {
         throw new Error('Email already registered');
       }
