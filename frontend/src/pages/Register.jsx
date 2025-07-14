@@ -12,53 +12,105 @@ export default function Register() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleRegister = (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
+  // const handleRegister = (e) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+  //   setError(null);
 
-    try {
-      // Check if user already exists
-      const users = JSON.parse(localStorage.getItem('clarity_users') || {});
-      if (users[email]) {
-        throw new Error('Email already registered');
-      }
+  //   try {
+  //     // Check if user already exists
+  //     const users = JSON.parse(localStorage.getItem('clarity_users') || {});
+  //     if (users[email]) {
+  //       throw new Error('Email already registered');
+  //     }
     
 
-      // Create new user (Note: In production, never store plain passwords!)
-      const newUser = {
-        username,
-        email,
-        password, // Warning: This is insecure for production
-        createdAt: new Date().toISOString()
-      };
+  //     // Create new user (Note: In production, never store plain passwords!)
+  //     const newUser = {
+  //       username,
+  //       email,
+  //       password, // Warning: This is insecure for production
+  //       createdAt: new Date().toISOString()
+  //     };
 
-      // Save to localStorage
-      users[email] = newUser;
-      localStorage.setItem('clarity_users', JSON.stringify(users));
+  //     // Save to localStorage
+  //     users[email] = newUser;
+  //     localStorage.setItem('clarity_users', JSON.stringify(users));
       
-      // Set current user session
-      localStorage.setItem('clarity_currentUser', JSON.stringify({
-        email,
-        username,
-        authToken: `fake-token-${Date.now()}`
-      }));
+  //     // Set current user session
+  //     localStorage.setItem('clarity_currentUser', JSON.stringify({
+  //       email,
+  //       username,
+  //       authToken: `fake-token-${Date.now()}`
+  //     }));
 
-      // Redirect to onboarding
-      navigate('/onboarding', {
-        state: {
-          isNewUser: true,
-          currentStep: 1
-        }
-      });
+  //     // Redirect to onboarding
+  //     navigate('/onboarding', {
+  //       state: {
+  //         isNewUser: true,
+  //         currentStep: 1
+  //       }
+  //     });
 
-    } catch (err) {
-      console.error('Registration failed:', err.message);
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
+  //   } catch (err) {
+  //     console.error('Registration failed:', err.message);
+  //     setError(err.message);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+
+
+
+  const handleRegister = (e) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setError(null);
+
+  try {
+    // Check if user already exists
+    const usersStr = localStorage.getItem('clarity_users');
+    const users = usersStr ? JSON.parse(usersStr) : {}; // Initialize as empty object if null
+    
+    if (users[email]) {
+      throw new Error('Email already registered');
     }
-  };
+
+    // Create new user (Note: In production, never store plain passwords!)
+    const newUser = {
+      username,
+      email,
+      password, // Warning: This is insecure for production
+      createdAt: new Date().toISOString()
+    };
+
+    // Save to localStorage
+    users[email] = newUser;
+    localStorage.setItem('clarity_users', JSON.stringify(users));
+    
+    // Set current user session
+    localStorage.setItem('clarity_currentUser', JSON.stringify({
+      email,
+      username,
+      authToken: `fake-token-${Date.now()}`
+    }));
+
+    // Redirect to onboarding
+    navigate('/onboarding', {
+      state: {
+        isNewUser: true,
+        currentStep: 1
+      }
+    });
+
+  } catch (err) {
+    console.error('Registration failed:', err.message);
+    setError(err.message || 'Registration failed. Please try again.');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleSocialRegister = (provider) => {
     alert(`In a real app, this would connect to ${provider} authentication`);
