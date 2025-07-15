@@ -199,14 +199,14 @@ export default function Dashboard() {
     <div className="flex min-h-screen bg-gray-50">
         {/* Mobile Sidebar Toggle - ADDED THIS BUTTON */}
       <button 
-        className="md:hidden fixed top-4 left-4 z-30 p-2 rounded-md bg-white shadow-md"
+        className="md:hidden fixed top-4 left-4 mb-20 z-30 p-2 rounded-md bg-white shadow-md"
         onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
-      
+
       {/* Sidebar */}
        
       <div className={`${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:static inset-y-0 left-0 z-20 w-64 bg-white border-r border-gray-200 p-6 transition-transform duration-300 ease-in-out`}>
