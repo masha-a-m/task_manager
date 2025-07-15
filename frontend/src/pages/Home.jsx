@@ -142,7 +142,7 @@ export default function Home() {
 
   
   return (
-    <div className="bg-white text-gray-800 overflow-x-hidden">
+    <div className="bg-white text-gray-800">
 
 
 
