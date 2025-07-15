@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   DndContext,
@@ -17,8 +17,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { SortableItem } from './SortableItem';
-import TaskForm from './TaskForm';
-import OnboardingSteps from './Onboarding';
+import OnboardingSteps from './OnboardingSteps';
 
 const dropAnimationConfig = {
   sideEffects: defaultDropAnimationSideEffects({
@@ -30,6 +29,13 @@ const dropAnimationConfig = {
   }),
 };
 
+const priorities = [
+  { level: 1, color: 'red', label: 'High' },
+  { level: 2, color: 'orange', label: 'Medium' },
+  { level: 3, color: 'blue', label: 'Low' },
+  { level: 4, color: 'gray', label: 'None' }
+];
+
 export default function Dashboard() {
   const [tasks, setTasks] = useState([]);
   const [user, setUser] = useState(null);
@@ -37,6 +43,7 @@ export default function Dashboard() {
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedDate, setSelectedDate] = useState(null);
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -46,11 +53,10 @@ export default function Dashboard() {
   const [activeId, setActiveId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showCalendar, setShowCalendar] = useState(false);
   const [showPriorityDropdown, setShowPriorityDropdown] = useState(false);
-const [selectedDate, setSelectedDate] = useState(
-  localStorage.getItem('clarity_selectedDate') || null
-);
-const [showSidebarCalendar, setShowSidebarCalendar] = useState(false);
+  const [showSidebarCalendar, setShowSidebarCalendar] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate();
 
   // Load user and tasks from localStorage
@@ -58,11 +64,13 @@ const [showSidebarCalendar, setShowSidebarCalendar] = useState(false);
     try {
       const currentUser = JSON.parse(localStorage.getItem('clarity_currentUser') || '{}');
       const allTasks = JSON.parse(localStorage.getItem('clarity_tasks') || '[]');
+      const savedDate = localStorage.getItem('clarity_selectedDate');
       
       if (currentUser.email) {
         setUser(currentUser);
         setTasks(allTasks);
         setIsNewUser(!currentUser.onboardingComplete);
+        if (savedDate) setSelectedDate(savedDate);
       } else {
         navigate('/login');
       }
@@ -82,44 +90,14 @@ const [showSidebarCalendar, setShowSidebarCalendar] = useState(false);
     })
   );
 
-// Helper function to format dates
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    month: 'short', 
-    day: 'numeric', 
-    year: 'numeric' 
-  });
-};
-
-// Update your filteredTasks calculation to include date filtering
-const filteredTasks = tasks.filter(task => {
-  // Search term filtering
-  if (searchTerm) {
-    const term = searchTerm.toLowerCase();
-    const matchesSearch = 
-      task.title.toLowerCase().includes(term) ||
-      (task.description && task.description.toLowerCase().includes(term));
-    if (!matchesSearch) return false;
-  }
-  
-  // Date filtering (if a date is selected)
-  if (selectedDate) {
-    return task.date && task.date.includes(selectedDate);
-  }
-  
-  return true;
-});
-
   const handleAddTask = () => {
     if (!newTask.title.trim()) return;
 
     const taskToAdd = {
       ...newTask,
       id: editingTaskId || Date.now().toString(),
-      priority: newTask.priority || 4
+      priority: newTask.priority || 4,
+      createdAt: new Date().toISOString()
     };
 
     const updatedTasks = editingTaskId
@@ -164,7 +142,48 @@ const filteredTasks = tasks.filter(task => {
     setActiveId(null);
   };
 
+  const handleOnboardingComplete = () => {
+    const currentUser = JSON.parse(localStorage.getItem('clarity_currentUser') || {});
+    localStorage.setItem('clarity_currentUser', JSON.stringify({
+      ...currentUser,
+      onboardingComplete: true
+    }));
+    setIsNewUser(false);
+  };
 
+  const handleDateSelect = (date) => {
+    setNewTask({ ...newTask, date });
+    setShowCalendar(false);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      month: 'long', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+  };
+
+  const filteredTasks = tasks.filter(task => {
+    // Filter by search term
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      if (!task.title.toLowerCase().includes(term) && 
+          !(task.description && task.description.toLowerCase().includes(term))) {
+        return false;
+      }
+    }
+    
+    // Filter by selected date
+    if (selectedDate) {
+      return task.date && task.date.includes(selectedDate);
+    }
+    
+    return true;
+  });
 
   const activeTask = activeId ? tasks.find(task => task.id === activeId) : null;
 
@@ -174,251 +193,366 @@ const filteredTasks = tasks.filter(task => {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 p-6 flex flex-col h-full">
+      <div className="w-64 bg-white border-r border-gray-200 p-6">
         {/* User Profile */}
         <div className="flex items-center mb-8">
           <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
-            {user?.username?.charAt(0).toUpperCase() || 'U'}
+            {user?.username?.charAt(0).toUpperCase()}
           </div>
-          <div className="ml-3">
-            <h2 className="font-semibold">{user?.username || 'User'}</h2>
-            <p className="text-xs text-gray-500">clarity.app</p>
-          </div>
+          <span className="ml-3 font-medium">{user?.username}</span>
         </div>
 
-        {/* Sidebar Menu */}
-        <div className="space-y-2 flex-1">
-          <button
-            onClick={() => {
-              setSelectedDate(null);
-              localStorage.setItem('clarity_selectedDate', '');
-            }}
-            className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center ${
-              !selectedDate ? 'bg-gray-100' : ''
-            }`}
-          >
-            <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            All Tasks
-          </button>
-          <button
-            onClick={() => setShowSidebarCalendar(!showSidebarCalendar)}
-            className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center ${
-              selectedDate ? 'bg-gray-100' : ''
-            }`}
-          >
-            <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            Calendar
-          </button>
-        </div>
-
-        {/* Calendar Dropdown */}
-        {showSidebarCalendar && (
-          <div className="absolute z-50 mt-2 left-0 ml-64 bg-white border border-gray-200 rounded-lg shadow-lg p-3">
-            <input
-              type="date"
-              value={selectedDate || ''}
-              onChange={(e) => {
-                const date = e.target.value;
-                setSelectedDate(date);
-                localStorage.setItem('clarity_selectedDate', date);
-                setShowSidebarCalendar(false);
-              }}
-              className="w-full p-2 border border-gray-300 rounded-md"
-            />
-          </div>
-        )}
-
-        {/* Divider */}
-        <div className="border-t border-gray-200 my-4"></div>
-
-        {/* Add Task Button */}
-        <button
-          onClick={() => {
-            setShowTaskForm(true);
-            setEditingTaskId(null);
-            setNewTask({
-              title: '',
-              description: '',
-              date: selectedDate || '',
-              priority: 4
-            });
-          }}
-          className="w-full bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center"
-        >
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Add Task
-        </button>
-
-        {/* Logout Button */}
-        <button
-          onClick={() => {
-            localStorage.removeItem('clarity_currentUser');
-            navigate('/login');
-          }}
-          className="mt-4 w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-medium flex items-center justify-center"
-        >
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          Logout
-        </button>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 p-8">
-  {isNewUser ? (
-    <OnboardingSteps onComplete={() => setIsNewUser(false)} />
-  ) : (
-    <>
-      {showTaskForm ? (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
-            <TaskForm
-              task={newTask}
-              setTask={setNewTask}
-              onSave={handleAddTask}
-              onCancel={() => {
-                setShowTaskForm(false);
+        {/* Navigation */}
+        {!isNewUser && (
+          <nav className="space-y-4">
+            <button 
+              onClick={() => {
+                setNewTask({
+                  title: '',
+                  description: '',
+                  date: selectedDate || '',
+                  priority: 4
+                });
+                setShowTaskForm(true);
                 setEditingTaskId(null);
               }}
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="max-w-4xl mx-auto">
-          {/* Search Bar */}
-          <div className="flex items-center mb-6">
-            <div className="relative flex-1">
-              <svg
-                className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
+              className="flex items-center text-left bg-red-500 hover:bg-red-600 text-white py-1 px-4 rounded-lg font-sm cursor-pointer"
+            >
+              <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Add Task</span>
+            </button>
+          
+            <div className="flex items-center text-gray-500 mt-8 mb-6">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input
                 type="text"
                 placeholder="Search tasks..."
+                className="ml-2 bg-transparent border-none focus:outline-none placeholder-gray-400"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                style={{ caretColor: '#ef4444' }}
               />
             </div>
-          </div>
 
-          {/* Date Filter Indicator */}
-          {selectedDate && (
-            <div className="flex items-center mb-4 text-sm text-gray-600">
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              Showing tasks for: {formatDate(selectedDate)}
-              <button 
-                onClick={() => {
-                  setSelectedDate(null);
-                  localStorage.removeItem('clarity_selectedDate');
-                }}
-                className="ml-2 text-red-500 hover:text-red-700"
+            <div className='relative'>
+              <div className="flex items-center text-gray-500 mb-6 cursor-pointer"
+                onClick={() => setShowSidebarCalendar(!showSidebarCalendar)}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-              </button>
-            </div>
-          )}
+                <span className="ml-3">Calendar</span>
 
-          <h1 className="text-2xl font-bold mb-6">Your Tasks</h1>
-          
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-            onDragCancel={handleDragCancel}
-          >
-            <SortableContext 
-              items={filteredTasks}
-              strategy={verticalListSortingStrategy}
-            >
-              <div className="space-y-4">
-                {filteredTasks.length > 0 ? (
-                  filteredTasks
-                    .filter(task => 
-                      !selectedDate || 
-                      (task.date && task.date.includes(selectedDate))
-                    )
-                    .map(task => (
-                      <SortableItem
-                        key={task.id}
-                        id={task.id}
-                        task={task}
-                        onEdit={(task) => {
-                          setNewTask({
-                            title: task.title,
-                            description: task.description || '',
-                            date: task.date || '',
-                            priority: Number(task.priority) || 4
-                          });
-                          setEditingTaskId(task.id);
-                          setShowTaskForm(true);
-                        }}
-                        onDelete={handleDeleteTask}
-                      />
-                    ))
-                ) : (
-                  <div className="text-center py-12">
-                    <p className="text-gray-500 mb-4">
-                      {searchTerm 
-                        ? `No tasks found for "${searchTerm}"`
-                        : selectedDate
-                          ? `No tasks scheduled for ${formatDate(selectedDate)}`
-                          : 'No tasks yet. Add your first task!'}
-                    </p>
-                    <button
-                      onClick={() => {
-                        setNewTask({
-                          title: '',
-                          description: '',
-                          date: selectedDate || '',
-                          priority: 4
-                        });
-                        setShowTaskForm(true);
+                {showSidebarCalendar && (
+                  <div className="absolute z-50 mt-2 left-0 bg-white border border-gray-200 rounded-lg shadow-lg p-3">
+                    <input 
+                      type="date" 
+                      onChange={(e) => {
+                        setSelectedDate(e.target.value);
+                        localStorage.setItem('clarity_selectedDate', e.target.value);
+                        setShowSidebarCalendar(false);
                       }}
-                      className="bg-red-500 hover:bg-red-600 text-white py-2 px-6 rounded-lg"
-                    >
-                      Add Task
-                    </button>
+                      className="p-2 border rounded w-full"
+                      onClick={(e) => e.stopPropagation()} 
+                    />
                   </div>
                 )}
               </div>
-            </SortableContext>
+            </div>
+            
+            <div className="flex items-center text-gray-500 mb-6 cursor-pointer" 
+              onClick={() => {
+                setSelectedDate(null);
+                localStorage.removeItem('clarity_selectedDate');
+                setSearchTerm('');
+              }} 
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="ml-3">Tasks</span>
+            </div>
 
-            <DragOverlay dropAnimation={dropAnimationConfig}>
-              {activeTask && (
-                <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
-                  <h3 className="font-medium">{activeTask.title}</h3>
+            <div className="mt-12 border-t border-gray-300 py-6">
+              <h3 className="text-sm font-semibold text-gray-500 tracking-wider">My Projects</h3>
+              <div className="mt-4 space-y-2 max-h-60 overflow-y-auto">
+                {tasks.slice(0, 5).map(task => (
+                  <div 
+                    key={task.id} 
+                    className="flex items-center p-2 hover:bg-gray-100 rounded cursor-pointer"
+                    onClick={() => {
+                      setSelectedDate(null);
+                      localStorage.removeItem('clarity_selectedDate');
+                      setSearchTerm(task.title);
+                    }}
+                  >
+                    <div className={`w-3 h-3 rounded-full mr-2 ${
+                      task.priority === 1 ? 'bg-red-500' :
+                      task.priority === 2 ? 'bg-orange-500' :
+                      task.priority === 3 ? 'bg-blue-500' : 'bg-gray-500'
+                    }`}></div>
+                    <span className="text-sm truncate">{task.title}</span>
+                  </div>
+                ))}
+                {tasks.length === 0 && (
+                  <p className="text-gray-400 text-sm">No tasks yet. Add one to get started!</p>
+                )}
+                {tasks.length > 5 && (
+                  <p className="text-gray-400 text-sm">+ {tasks.length - 5} more tasks</p>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-auto pt-6 border-t border-gray-200">
+              <button 
+                onClick={() => setShowLogoutConfirm(true)}
+                className="flex items-center text-gray-500 hover:text-red-500 w-full"
+              >
+                <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span className='cursor-pointer'>Logout</span>
+              </button>
+            </div>
+          </nav>
+        )}
+      </div>
+
+      {/* Main Content */}
+      {isNewUser ? (
+        <OnboardingSteps 
+          user={user} 
+          setUser={setUser} 
+          onComplete={handleOnboardingComplete}
+        />
+      ) : (
+        <div className="flex-1">
+          {showTaskForm ? (
+            <div className="max-w-2xl mt-10 ml-10 w-200 bg-white p-6 rounded-lg shadow-md">
+              <input
+                type="text"
+                placeholder="My Language Lesson"
+                className="border-gray-200 focus:outline-none focus:border-red-500 text-md w-full"
+                value={newTask.title}
+                onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                autoFocus
+              />
+              <input
+                type="text"
+                placeholder="Description"
+                className="w-full border-gray-200 text-xs focus:outline-none focus:border-red-500 mt-4"
+                value={newTask.description}
+                onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+              />
+              
+              <div className="flex items-center mt-4">
+                <div className="relative">
+                  <button 
+                    className="flex items-center text-gray-600 cursor-pointer"
+                    onClick={() => setShowCalendar(!showCalendar)}
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>{newTask.date || 'Date'}</span>
+                  </button>
+                  {showCalendar && (
+                    <div className="absolute z-10 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
+                      <input 
+                        type="date" 
+                        onChange={(e) => handleDateSelect(e.target.value)}
+                        className="p-2 border rounded"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="relative ml-6">
+                  <button 
+                    className="flex items-center text-gray-600 cursor-pointer"
+                    onClick={() => setShowPriorityDropdown(!showPriorityDropdown)}
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                    </svg>
+                    <span>{newTask.priority ? `Priority ${newTask.priority}` : 'Priority'}</span>
+                  </button>
+                  {showPriorityDropdown && (
+                    <div className="absolute z-10 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 w-40">
+                      {priorities.map((p) => (
+                        <div 
+                          key={p.level}
+                          className="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => {
+                            setNewTask({ ...newTask, priority: p.level });
+                            setShowPriorityDropdown(false);
+                          }}
+                        >
+                          <div className={`w-4 h-4 rounded-full mr-2 bg-${p.color}-500`}></div>
+                          <span>Priority {p.level}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 my-4"></div>
+
+              <div className="flex justify-end space-x-4">
+                <button 
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 cursor-pointer"
+                  onClick={() => setShowTaskForm(false)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className={`px-4 cursor-pointer rounded-lg ${newTask.title ? 'bg-red-500 hover:bg-red-600' : 'bg-red-300'} text-white`}
+                  disabled={!newTask.title}
+                  onClick={handleAddTask}
+                >
+                  {editingTaskId ? 'Update Task' : 'Add Task'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="max-w-2xl">
+              {selectedDate && (
+                <div className="ml-10 mt-10 mb-6 flex items-center">
+                  <h2 className="text-xl font-semibold">
+                    Tasks for {formatDate(selectedDate)}
+                  </h2>
+                  <button 
+                    onClick={() => {
+                      setSelectedDate(null);
+                      localStorage.removeItem('clarity_selectedDate');
+                    }}
+                    className="ml-4 text-gray-500 hover:text-gray-700"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
               )}
-            </DragOverlay>
-          </DndContext>
+
+              {filteredTasks.length > 0 ? (
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
+                  onDragCancel={handleDragCancel}
+                >
+                  <div className="min-h-screen bg-gray-50">
+                    <SortableContext 
+                      items={filteredTasks}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <div className="space-y-4 mt-10 ml-10 w-160">
+                        {filteredTasks.map((task) => (
+                          <SortableItem 
+                            key={task.id}
+                            id={task.id}
+                            task={task}
+                            onEdit={(taskToEdit) => {
+                              setNewTask({
+                                title: taskToEdit.title,
+                                description: taskToEdit.description || '',
+                                date: taskToEdit.date || '',
+                                priority: Number(taskToEdit.priority) || 4
+                              });
+                              setEditingTaskId(taskToEdit.id);
+                              setShowTaskForm(true);
+                            }}
+                            onDelete={handleDeleteTask}
+                          />
+                        ))}
+                      </div>
+                    </SortableContext>
+                  </div>
+
+                  <DragOverlay dropAnimation={dropAnimationConfig}>
+                    {activeTask ? (
+                      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 shadow-lg opacity-80">
+                        <div className="flex justify-between items-start px-12">
+                          <div className="flex-1">
+                            <h3 className="font-medium">{activeTask.title}</h3>
+                            {activeTask.description && <p className="text-gray-600 text-sm mt-1">{activeTask.description}</p>}
+                            {activeTask.date && <p className="text-gray-500 text-xs mt-2">{activeTask.date}</p>}
+                          </div>
+                          <button className="text-gray-400 hover:text-gray-600">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    ) : null}
+                  </DragOverlay>
+                </DndContext>
+              ) : (
+                <div className="text-center mt-20">
+                  {searchTerm ? (
+                    <div className='ml-20'>
+                      <h1 className="text-3xl font-bold mb-4">No tasks found</h1>
+                      <p className="text-gray-600 mb-8">No tasks match your search for "{searchTerm}"</p>
+                    </div>
+                  ) : (
+                    <div className='mx-auto ml-20'>
+                      <h1 className="text-3xl font-bold mb-4">Capture now, plan later</h1>
+                      <p className="text-gray-600 mb-8">Inbox is your go-to spot for quick task entry. Clear your mind now, organize when you're ready.</p>
+                    </div>
+                  )}
+                  <button 
+                    onClick={() => {
+                      setNewTask({
+                        title: '',
+                        description: '',
+                        date: selectedDate || '',
+                        priority: 4
+                      });
+                      setShowTaskForm(true);
+                    }}
+                    className="ml-20 bg-red-500 hover:bg-red-600 text-white py-3 px-8 rounded-lg font-medium cursor-pointer"
+                  >
+                    Add Task
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
-    </>
-  )}
-</div>
+
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+            <h3 className="text-lg font-medium mb-4">Are you sure you want to logout?</h3>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  localStorage.removeItem('clarity_currentUser');
+                  navigate('/login');
+                }}
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 cursor-pointer"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
