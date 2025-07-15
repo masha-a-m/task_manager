@@ -361,7 +361,7 @@ export default function Dashboard() {
       ) : (
         <div className="flex-1">
           {showTaskForm ? (
-            <div className="max-w-2xl mt-10 ml-10 w-200 bg-white p-6 rounded-lg shadow-md">
+            <div className="max-w-2xl mt-10 md:ml-10 w-auto md:w-200 bg-white p-6 rounded-lg shadow-md">
               <input
                 type="text"
                 placeholder="My Language Lesson"
@@ -449,9 +449,9 @@ export default function Dashboard() {
               </div>
             </div>
           ) : (
-            <div className="max-w-2xl">
+            <div className="max-w-2xl mx-4 md:mx-0">
               {selectedDate && (
-                <div className="ml-10 mt-10 mb-6 flex items-center">
+                <div className="md:ml-10 mt-10 mb-6 flex items-center">
                   <h2 className="text-xl font-semibold">
                     Tasks for {formatDate(selectedDate)}
                   </h2>
@@ -482,7 +482,7 @@ export default function Dashboard() {
                       items={filteredTasks}
                       strategy={verticalListSortingStrategy}
                     >
-                      <div className="space-y-4 mt-10 ml-10 w-160">
+                      <div className="space-y-4 mt-10 md:ml-10 w-auto md:w-160">
                         {filteredTasks.map((task) => (
                           <SortableItem 
                             key={task.id}
@@ -497,6 +497,7 @@ export default function Dashboard() {
                               });
                               setEditingTaskId(taskToEdit.id);
                               setShowTaskForm(true);
+                              setMobileSidebarOpen(false);
                             }}
                             onDelete={handleDeleteTask}
                           />
@@ -507,7 +508,7 @@ export default function Dashboard() {
 
                   <DragOverlay dropAnimation={dropAnimationConfig}>
                     {activeTask ? (
-                      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 shadow-lg opacity-80">
+                      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 opacity-80">
                         <div className="flex justify-between items-start px-12">
                           <div className="flex-1">
                             <h3 className="font-medium">{activeTask.title}</h3>
@@ -525,14 +526,14 @@ export default function Dashboard() {
                   </DragOverlay>
                 </DndContext>
               ) : (
-                <div className="text-center mt-20">
+                <div className="text-center mt-20 mx-4 md:mx-0">
                   {searchTerm ? (
-                    <div className='ml-20'>
+                    <div className='md:ml-20'>
                       <h1 className="text-3xl font-bold mb-4">No tasks found</h1>
                       <p className="text-gray-600 mb-8">No tasks match your search for "{searchTerm}"</p>
                     </div>
                   ) : (
-                    <div className='mx-auto ml-20'>
+                    <div className='mx-auto md:ml-20'>
                       <h1 className="text-3xl font-bold mb-4">Capture now, plan later</h1>
                       <p className="text-gray-600 mb-8">Inbox is your go-to spot for quick task entry. Clear your mind now, organize when you're ready.</p>
                     </div>
@@ -546,8 +547,9 @@ export default function Dashboard() {
                         priority: 4
                       });
                       setShowTaskForm(true);
+                      setMobileSidebarOpen(false);
                     }}
-                    className="ml-20 bg-red-500 hover:bg-red-600 text-white py-3 px-8 rounded-lg font-medium cursor-pointer"
+                    className="md:ml-20 bg-red-500 hover:bg-red-600 text-white py-3 px-8 rounded-lg font-medium cursor-pointer"
                   >
                     Add Task
                   </button>
