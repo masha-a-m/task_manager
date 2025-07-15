@@ -315,7 +315,7 @@ export default function Home() {
   <div className="flex flex-col lg:flex-row md:mt-20 mt-40">
         
         {/* Left Side - Scrollable Content */}
-        <div className="lg:w-1/2 p-8 space-y-100 overflow-y-auto max-h-screen lg:max-h-full mt-40 ml-20 sm:space-y-2 sm:mx-auto">
+        <div className="lg:w-1/2 p-8 space-y-100 overflow-y-auto max-h-screen lg:max-h-full mt-40 ml-20 sm:mx-auto">
           {sections.map((section, index) => (
             <div key={index} className="scroll-mt-20">
               <h2 className={`text-xl sm:text-lg font-bold mb-8 ${section.colorClass}`}>{section.title}</h2>
@@ -405,7 +405,7 @@ export default function Home() {
 
 
       {/* Smart Features Section */}
-      <section className='py-5 px-6 bg-gray-50'>
+      <section className='py-5 px-6 bg-gray-50 sm:mx-auto'>
       <div className='flex flex-row lg:flex-row items-center gap-x-36 lg:space-y-0 lg:space-x-10'>
         <div className='md:w-1/2 flex justify-center'> 
           <img src="/images/hero img.avif" alt="Smart Features" className="h-auto rounded-lg shadow-md mb-10" />
