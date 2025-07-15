@@ -405,7 +405,7 @@ export default function Home() {
 
 
       {/* Smart Features Section */}
-      <section className='py-5 px-6 bg-gray-50 sm:mx-auto'>
+      <section className='py-5 px-6 bg-gray-50 mx-auto'>
       <div className='flex flex-row lg:flex-row items-center gap-x-36 lg:space-y-0 lg:space-x-10'>
         <div className='md:w-1/2 flex justify-center'> 
           <img src="/images/hero img.avif" alt="Smart Features" className="h-auto rounded-lg shadow-md mb-10" />
