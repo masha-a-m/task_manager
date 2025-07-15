@@ -368,7 +368,7 @@ export default function Dashboard() {
           onComplete={handleOnboardingComplete}
         />
       ) : (
-        <div className="flex-1">
+        <div className="flex-1 pt-16 md:pt-0">
           {showTaskForm ? (
             <div className="max-w-2xl mt-10 md:ml-10 w-auto md:w-200 bg-white p-6 rounded-lg shadow-md">
               <input
