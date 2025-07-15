@@ -18,7 +18,7 @@ import {
 } from '@dnd-kit/sortable';
 import { SortableItem } from './SortableItem';
 import TaskForm from './TaskForm';
-import OnboardingSteps from './OnboardingSteps';
+import OnboardingSteps from './Onboarding';
 
 const dropAnimationConfig = {
   sideEffects: defaultDropAnimationSideEffects({
