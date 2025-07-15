@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
-import { format } from 'date-fns';
 
 const TaskForm = ({ task, setTask, onSave, onCancel }) => {
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [showPriorityDropdown, setShowPriorityDropdown] = useState(false);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const options = { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' };
+    return date.toLocaleDateString('en-US', options);
+  };
 
   const priorityOptions = [
     { value: 1, label: 'High', color: 'bg-red-500' },
@@ -16,12 +21,7 @@ const TaskForm = ({ task, setTask, onSave, onCancel }) => {
                          priorityOptions[3];
 
   const handleDateChange = (e) => {
-    if (e.target.value) {
-      const formattedDate = format(new Date(e.target.value), 'EEEE, MM/dd/yyyy');
-      setTask({ ...task, date: formattedDate });
-    } else {
-      setTask({ ...task, date: '' });
-    }
+    setTask({ ...task, date: e.target.value });
   };
 
   const handlePrioritySelect = (priority) => {
@@ -59,21 +59,10 @@ const TaskForm = ({ task, setTask, onSave, onCancel }) => {
           <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
           <input
             type="date"
-            value={task.date ? format(new Date(task.date), 'yyyy-MM-dd') : ''}
+            value={task.date || ''}
             onChange={handleDateChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
           />
-          {task.date && (
-            <button
-              onClick={() => setTask({...task, date: ''})}
-              className="absolute right-2 top-8 text-gray-400 hover:text-red-500"
-              aria-label="Clear date"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
         </div>
 
         <div className="relative">
