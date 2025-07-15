@@ -312,7 +312,7 @@ export default function Home() {
 
 
   {/* Feature Sections – Scrollable Left / Fixed Right */}
-  <div className="flex flex-col lg:flex-row md:mt-20 mt-40">
+  <div className="flex flex-col lg:flex-row mt-40">
         
         {/* Left Side - Scrollable Content */}
         <div className="lg:w-1/2 p-8 space-y-100 overflow-y-auto max-h-screen lg:max-h-full mt-40 ml-20">
@@ -342,7 +342,7 @@ export default function Home() {
         </div>
 
         {/* Right Side - Fixed Image */}
-        <div className="lg:w-1/2 lg:block h-64 lg:h-screen sticky top-0 self-start flex items-center justify-center bg-gray-100">
+        <div className="lg:w-1/2 h-64 lg:h-screen sticky top-0 self-start flex items-center justify-center bg-gray-100">
           <img
             src="/images/hero img.avif"
             alt="Feature Preview"
