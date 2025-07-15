@@ -109,7 +109,7 @@ const OnboardingSteps = () => {
       
       <button 
         onClick={handleNextStep}
-        className="mt-12 w-full bg-red-500 hover:bg-red-600 text-white py-3 px-6 rounded-md font-medium transition-colors"
+        className="mt-12 w-full bg-red-500 hover:bg-red-600 cursor-pointer text-white py-3 px-6 rounded-md font-medium transition-colors"
       >
         Let's go
       </button>
@@ -203,7 +203,7 @@ const OnboardingSteps = () => {
         <button 
           onClick={handleNextStep}
           disabled={!user.username.trim()}
-          className={`w-full text-white py-3 px-6 rounded-lg font-medium transition ${
+          className={`w-full text-white py-3 px-6 cursor-pointer rounded-lg font-medium transition ${
             !user.username.trim() ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'
           }`}
         >
