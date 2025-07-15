@@ -17,7 +17,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { SortableItem } from './SortableItem';
-import OnboardingSteps from './OnboardingSteps';
+import OnboardingSteps from './Onboarding';
 
 const dropAnimationConfig = {
   sideEffects: defaultDropAnimationSideEffects({
