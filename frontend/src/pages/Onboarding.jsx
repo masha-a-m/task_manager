@@ -234,7 +234,7 @@ const OnboardingSteps = () => {
         <p className="text-gray-600 mt-6 mb-7 text-sm">Select one to get started. You can always incorporate the other later.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-20 sm:mx-auto">
         <div 
           className={`border rounded-lg p-6 w-70 text-center cursor-pointer transition-all ${selectedUsage === 'myself' ? 'border-red-400 shadow-md' : 'border-gray-200 hover:shadow-md'}`}
           onClick={() => {
