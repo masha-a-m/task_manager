@@ -199,7 +199,7 @@ export default function Dashboard() {
     <div className="flex min-h-screen bg-gray-50">
         {/* Mobile Sidebar Toggle - ADDED THIS BUTTON */}
       <button 
-        className="md:hidden fixed top-4 left-4 mb-20 z-30 p-2 rounded-md bg-white shadow-md"
+        className="md:hidden fixed top-4 left-4  z-30 px-2 py-10  rounded-md bg-white shadow-md"
         onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
