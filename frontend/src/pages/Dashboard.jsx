@@ -57,6 +57,7 @@ export default function Dashboard() {
   const [showPriorityDropdown, setShowPriorityDropdown] = useState(false);
   const [showSidebarCalendar, setShowSidebarCalendar] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -196,8 +197,20 @@ export default function Dashboard() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
+    
       {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 p-6">
+       
+      <div className={`${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:static inset-y-0 left-0 z-20 w-64 bg-white border-r border-gray-200 p-6 transition-transform duration-300 ease-in-out`}>
+        {/* Close button for mobile */}
+        <button 
+          className="md:hidden absolute top-4 right-4 p-1 text-gray-500 hover:text-gray-700"
+          onClick={() => setMobileSidebarOpen(false)}
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
         {/* User Profile */}
         <div className="flex items-center mb-8">
           <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
@@ -219,6 +232,7 @@ export default function Dashboard() {
                 });
                 setShowTaskForm(true);
                 setEditingTaskId(null);
+                setMobileSidebarOpen(false);
               }}
               className="flex items-center text-left bg-red-500 hover:bg-red-600 text-white py-1 px-4 rounded-lg font-sm cursor-pointer"
             >
@@ -273,6 +287,7 @@ export default function Dashboard() {
                 setSelectedDate(null);
                 localStorage.removeItem('clarity_selectedDate');
                 setSearchTerm('');
+                setMobileSidebarOpen(false);
               }} 
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -292,6 +307,7 @@ export default function Dashboard() {
                       setSelectedDate(null);
                       localStorage.removeItem('clarity_selectedDate');
                       setSearchTerm(task.title);
+                      setMobileSidebarOpen(false);
                     }}
                   >
                     <div className={`w-3 h-3 rounded-full mr-2 ${
@@ -325,6 +341,15 @@ export default function Dashboard() {
           </nav>
         )}
       </div>
+
+       {/* Overlay for mobile sidebar */}
+      {mobileSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
 
       {/* Main Content */}
       {isNewUser ? (
