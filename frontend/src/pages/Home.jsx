@@ -315,7 +315,7 @@ export default function Home() {
   <div className="flex flex-col lg:flex-row md:mt-20 mt-40">
         
         {/* Left Side - Scrollable Content */}
-        <div className="lg:w-1/2 p-8 space-y-100 overflow-y-auto max-h-screen lg:max-h-full mt-40 ml-20 sm:mx-auto">
+        <div className="lg:w-1/2 p-8 space-y-100 overflow-y-auto max-h-screen lg:max-h-full mt-40 ml-20 sm:space-y-2 sm:mx-auto">
           {sections.map((section, index) => (
             <div key={index} className="scroll-mt-20">
               <h2 className={`text-xl sm:text-lg font-bold mb-8 ${section.colorClass}`}>{section.title}</h2>
