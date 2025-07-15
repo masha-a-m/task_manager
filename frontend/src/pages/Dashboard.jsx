@@ -57,6 +57,7 @@ export default function Dashboard() {
   const [showPriorityDropdown, setShowPriorityDropdown] = useState(false);
   const [showSidebarCalendar, setShowSidebarCalendar] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const location = useLocation();
   const navigate = useNavigate();
 
   // Load user and tasks from localStorage
@@ -69,7 +70,10 @@ export default function Dashboard() {
       if (currentUser.email) {
         setUser(currentUser);
         setTasks(allTasks);
-        setIsNewUser(!currentUser.onboardingComplete);
+            // Skip onboarding if coming from login or already completed
+        const skipOnboarding = location.state?.fromLogin || currentUser.onboardingComplete;
+        setIsNewUser(!skipOnboarding);
+
         if (savedDate) setSelectedDate(savedDate);
       } else {
         navigate('/login');
@@ -81,7 +85,7 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, [navigate]);
+  }, [navigate, location.state]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),

@@ -57,7 +57,7 @@ export default function Login() {
       }));
       
       // 5. Redirect to dashboard
-      navigate('/dashboard');
+    navigate('/dashboard', { state: { fromLogin: true } });
     } catch (error) {
       console.error('Login error:', error);
       setError(error.message || 'Login failed. Please try again.');
